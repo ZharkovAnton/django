@@ -1,13 +1,31 @@
+from typing import TYPE_CHECKING
+
 from dj_rest_auth import views as auth_views
 from django.contrib.auth import logout as django_logout
+from django.core.signing import BadSignature
 from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from django.core import signing
+from django.contrib.auth import get_user_model
+from django.contrib.auth import login
 
 from . import serializers
-from .services import AuthAppService, full_logout
+from .services import (
+    AuthAppService,
+    full_logout,
+    ConfirmationEmailHandler,
+    ResetPasswordEmail,
+    PasswordResetHandler,
+    CaptchaHandler,
+)
+
+if TYPE_CHECKING:
+    from main.models import UserType
+
+User: 'UserType' = get_user_model()
 
 
 class SignUpView(GenericAPIView):
@@ -19,7 +37,11 @@ class SignUpView(GenericAPIView):
         serializer.is_valid(raise_exception=True)
 
         service = AuthAppService()
-        service.create_user(serializer.validated_data)
+        user = service.create_user(serializer.validated_data)
+
+        email = ConfirmationEmailHandler(user)
+        email.send_email()
+
         return Response(
             {'detail': _('Confirmation email has been sent')},
             status=status.HTTP_201_CREATED,
@@ -48,6 +70,10 @@ class PasswordResetView(GenericAPIView):
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+
+        email = ResetPasswordEmail(serializer.validated_data['email'])
+        email.send_email()
+
         return Response(
             {'detail': _('Password reset e-mail has been sent.')},
             status=status.HTTP_200_OK,
@@ -61,6 +87,16 @@ class PasswordResetConfirmView(GenericAPIView):
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+
+        handler = PasswordResetHandler()
+
+        user = handler.check_uid_token(
+            token=serializer.validated_data['token'],
+            uid=serializer.validated_data['uid'],
+        )
+
+        user.set_password(serializer.validated_data['password_1'])
+        user.save(update_fields=["password"])
         return Response(
             {'detail': _('Password has been reset with the new password.')},
             status=status.HTTP_200_OK,
@@ -74,7 +110,44 @@ class VerifyEmailView(GenericAPIView):
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+
+        try:
+            user_id = signing.loads(serializer.validated_data["key"])
+            user = User.objects.get(id=user_id)
+        except (TypeError, ValueError, User.DoesNotExist, BadSignature):
+            user = None
+
+        if user:
+            user.is_active = True
+            user.save()
+            return Response(
+                {'detail': _('Email verified')},
+                status=status.HTTP_200_OK,
+            )
+
         return Response(
-            {'detail': _('Email verified')},
-            status=status.HTTP_200_OK,
+            {'detail': _('Email not verified')},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
+class CaptchaView(GenericAPIView):
+    serializer_class = serializers.CaptchaSerializer
+    permission_classes = (AllowAny,)
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        captcha = CaptchaHandler(serializer.validated_data['token'])
+
+        if captcha.check_captcha_response():
+            return Response(
+                {'detail': _('success')},
+                status=status.HTTP_200_OK,
+            )
+
+        return Response(
+            {'detail': _('bad')},
+            status=status.HTTP_400_BAD_REQUEST,
         )

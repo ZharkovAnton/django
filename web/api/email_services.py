@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Optional
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils.translation import get_language
 

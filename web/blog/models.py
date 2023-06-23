@@ -3,6 +3,7 @@ from django.db import models
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from rest_framework.reverse import reverse_lazy
+from taggit.managers import TaggableManager
 
 from .choices import ArticleStatus
 
@@ -38,6 +39,7 @@ class Article(models.Model):
     status = models.PositiveSmallIntegerField(choices=ArticleStatus.choices, default=ArticleStatus.INACTIVE)
     image = models.ImageField(upload_to='articles/', blank=True, default='no-image-available.jpg')
     objects = models.Manager()
+    tags = TaggableManager()
 
     @property
     def short_title(self):

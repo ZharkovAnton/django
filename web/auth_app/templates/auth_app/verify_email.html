@@ -1,15 +1,16 @@
+{% extends 'auth_app/base.html'%}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Confirm email</title>
-</head>
-<body>
-Привет!
-</body>
+
+{% block head %}
+<link href="{% static 'auth_app/css/sign_up.css' %}" rel="stylesheet">
+{% endblock head %}
+
+{% block container %}
+
+<span class="verification"></span>
+{% endblock container %}
 
 {% block jquery %}
-$.getScript('{% static 'email/js/verify.js' %}');
+$.getScript('{% static 'auth_app/js/verify.js' %}');
 {% endblock %}
-</html>
+

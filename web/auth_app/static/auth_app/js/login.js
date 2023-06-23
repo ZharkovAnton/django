@@ -1,5 +1,7 @@
+console.log('hi')
 $(function () {
   $('#loginForm').submit(login);
+  $('#forgotPasswordForm').submit(passwordReset);
 });
 
 function login(e) {
@@ -23,4 +25,23 @@ function login(e) {
 
     }
   })
+}
+
+
+
+function passwordReset(e) {
+  let form = $(this);
+  e.preventDefault();
+  $.ajax({
+    url: form.attr('action'),
+    type: 'POST',
+    dataType: 'json',
+    data: form.serialize(),
+    success: function (data) {
+      alert('ok');
+    },
+    error: function (data) {
+      alert('error');
+    },
+  });
 }

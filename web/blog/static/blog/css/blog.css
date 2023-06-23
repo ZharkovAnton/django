@@ -67,5 +67,10 @@ footer {
 		top:-20px;
 		width: 100%;
 	}
-
+  .error {
+    color: red
+  }
+  .error::placeholder {
+    color: red
+  }
 

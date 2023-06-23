@@ -2,9 +2,9 @@
   <div class="well">
     <h4><i class="fa fa-search"></i> Blog Search...</h4>
     <div class="input-group">
-      <input type="text" class="form-control">
+      <input id="search" type="text" class="form-control">
       <span class="input-group-btn">
-                            <button class="btn btn-default" type="button">
+                            <button id="search-btn" class="btn btn-default" type="button">
                                 <i class="fa fa-search"></i>
                             </button>
                         </span>
@@ -16,27 +16,11 @@
     <h4><i class="fa fa-tags"></i> Popular Tags:</h4>
     <div class="row">
       <div class="col-lg-6">
-        <ul class="list-unstyled">
-          <li><a href=""><span class="badge badge-info">Windows 8</span></a>
-          </li>
-          <li><a href=""><span class="badge badge-info">C#</span></a>
-          </li>
-          <li><a href=""><span class="badge badge-info">Windows Forms</span></a>
-          </li>
-          <li><a href=""><span class="badge badge-info">WPF</span></a>
-          </li>
+        <ul id="list-1" class="list-unstyled">
         </ul>
       </div>
       <div class="col-lg-6">
-        <ul class="list-unstyled">
-          <li><a href=""><span class="badge badge-info">Bootstrap</span></a>
-          </li>
-          <li><a href=""><span class="badge badge-info">Joomla!</span></a>
-          </li>
-          <li><a href=""><span class="badge badge-info">CMS</span></a>
-          </li>
-          <li><a href=""><span class="badge badge-info">Java</span></a>
-          </li>
+        <ul id="list-2" class="list-unstyled">
         </ul>
       </div>
     </div>
@@ -60,6 +44,14 @@
   <!-- /well -->
   <!-- /well -->
   <div class="well">
+    <h4><i class="fa fa-fire"></i> Article proposal:</h4>
+    <ul>
+      <li>You can suggest a <a href="{% url 'blog:create-article' %}">new article</a> on any topic. We will definitely publish it, if we like it.</li>
+    </ul>
+  </div>
+  <!-- /well -->
+  <!-- /well -->
+  <div class="well">
     <h4><i class="fa fa-fire"></i> Popular Posts:</h4>
     <ul>
       <li><a href="">WPF vs. Windows Forms-Which is better?</a></li>
@@ -71,7 +63,6 @@
     </ul>
   </div>
   <!-- /well -->
-
   <!-- /well -->
   <div class="well">
     <h4><i class="fa fa-book"></i> Featured books:</h4>

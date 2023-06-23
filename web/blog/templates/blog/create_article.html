@@ -1,0 +1,32 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block container %}
+<div class="row">
+  <div class="col-md-6 col-md-offset-3">
+    <form id="createArticleForm" action="{% url 'api:v1:blog:article-create' %}" method="post" accept-charset="utf-8" class="form" role="form">
+      {% csrf_token %}
+      <h4>Create a new article</h4>
+      <div class="row">
+        <div class="col-xs-6 col-md-6">
+          <input type="text" id="title" name="title" value="" class="form-control input-lg" placeholder="Title"/></div>
+        <div class="col-xs-6 col-md-6">
+          <select name="category" id="category" class="form-control input-lg"></select>
+        </div>
+      </div>
+      <br/>
+      <label for="summernote">Write your aticle: </label>
+      <textarea id="summernote" name="content" class="form-control input-lg"></textarea>
+      <label for="image">Choose an image: </label>
+      <input type="file" id="image" name="image" accept="image/png, image/jpeg" class="form-control input-lg"/>
+      <br/>
+      <button class="btn btn-lg btn-primary btn-block signup-btn" type="submit">Send article </button>
+    </form>
+  </div>
+</div>
+
+{% endblock container %}
+
+{% block jquery %}
+$.getScript('{% static 'blog/js/create_article.js' %}')
+{% endblock jquery %}

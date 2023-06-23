@@ -8,7 +8,7 @@ from .models import Article, Category, Comment
 class ArticleAdmin(SummernoteModelAdmin):
     list_display = ('title', 'category', 'status', 'author')
     summernote_fields = ('content',)
-    fields = ('category', 'title', 'status', 'author', 'image', 'content', 'created', 'updated')
+    fields = ('category', 'title', 'status', 'author', 'image', 'content', 'tags', 'created', 'updated')
     readonly_fields = ('created', 'updated')
     list_select_related = ('category', 'author')
     list_filter = ('status',)

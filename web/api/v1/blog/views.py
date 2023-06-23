@@ -1,0 +1,110 @@
+from django.db.migrations import serializer
+from django.db.models import Count
+from django.utils.translation import gettext_lazy as _
+from rest_framework import status
+from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
+from django_filters.rest_framework import DjangoFilterBackend
+
+from taggit.serializers import TaggitSerializer
+from taggit.models import Tag
+
+from api.v1.blog.serializers import FullArticleSerializer, ArticleCreateSerializer, CategorySerializer, TagListSerializer
+from api.v1.blog.services import BlogService, CreateArticleService, EmailCreateArticleAdminHandler, EmailCreateArticleUserHandler
+from blog.models import Category
+from main.pagination import BasePageNumberPagination
+from api.v1.blog.filters import ArticleFilter
+
+
+class ArticleListView(GenericAPIView):
+    serializer_class = FullArticleSerializer
+    permission_classes = (AllowAny,)
+    pagination_class = BasePageNumberPagination
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = ArticleFilter
+
+    def get_queryset(self):
+        queryset = BlogService.get_active_articles()
+        return self.filterset_class(self.request.GET, queryset=queryset).qs
+
+    def get(self, request):
+        queryset = self.get_queryset()
+        paginator = self.pagination_class()
+        paginated_queryset = paginator.paginate_queryset(queryset, request)
+        serializer = self.get_serializer(paginated_queryset, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
+
+
+class ArticleDetailView(GenericAPIView):
+    serializer_class = FullArticleSerializer
+    permission_classes = (AllowAny, )  #  изменить доступ на удаление и апдейт
+
+    def get_queryset(self):
+        return BlogService.get_active_articles()
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        return queryset.get(slug=self.kwargs['slug'])
+
+    def get(self, request, *args, **kwargs):
+        obj = self.get_object()
+        serializer = self.get_serializer(obj)
+        return Response(serializer.data)
+
+
+class ArticleCreateView(GenericAPIView):
+    serializer_class = ArticleCreateSerializer
+    parser_classes = [MultiPartParser, FormParser]
+
+    def get_serializer(self, *args, **kwargs):
+        if self.request.method == 'GET':
+            return CategorySerializer(*args, **kwargs)
+        return super().get_serializer(*args, **kwargs)
+
+    def get_queryset(self):
+        return Category.objects.all()
+
+    def get(self, request):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        service_create = CreateArticleService()
+        article = service_create.create_article(data=serializer.validated_data, user=request.user)
+
+        service_email_admin = EmailCreateArticleAdminHandler(article_id=article.id)
+        service_email_admin.send_email()
+
+        service_email_user = EmailCreateArticleUserHandler(user=article.author.email)
+        service_email_user.send_email()
+
+        return Response(
+            {'detail': _('The article has been sent to moderate')},
+            status=status.HTTP_200_OK,
+        )
+
+
+class TagListView(GenericAPIView):
+    serializer_class = TagListSerializer
+    permission_classes = (AllowAny, )  #  изменить доступ на удаление и апдейт
+
+    def get_queryset(self):
+        return Tag.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class ArticleTagsListView(GenericAPIView):
+    serializer_class = FullArticleSerializer
+    permission_classes = (AllowAny,)
+    

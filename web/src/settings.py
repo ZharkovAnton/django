@@ -23,6 +23,10 @@ AUTH_USER_MODEL = 'main.User'
 
 PROJECT_TITLE = os.environ.get('PROJECT_TITLE', 'Template')
 
+SUPERUSER_EMAIL = os.environ.get('SUPERUSER_EMAIL', 'admin@example.com')
+
+TAGGIT_CASE_INSENSITIVE = True
+
 GITHUB_URL = os.environ.get('GITHUB_URL', 'https://github.com')
 
 REDIS_URL = os.environ.get('REDIS_URL', 'redis://redis:6379')
@@ -37,7 +41,9 @@ INTERNAL_IPS: list[str] = []
 ADMIN_URL = os.environ.get('ADMIN_URL', 'admin')
 
 SWAGGER_URL = os.environ.get('SWAGGER_URL')
-FRONTEND_URL = os.environ.get('FRONTEND_URL')
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:8000')
+
+DRF_RECAPTCHA_SECRET_KEY = "6LcUJYsmAAAAAABloinleweNI12sXaNiOAaO49hK"
 
 HEALTH_CHECK_URL = os.environ.get('HEALTH_CHECK_URL', '/application/health/')
 EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
@@ -62,6 +68,7 @@ THIRD_PARTY_APPS = [
     'rosetta',
     'django_summernote',
     'django_filters',
+    'taggit',
 ]
 
 LOCAL_APPS = [
@@ -239,6 +246,7 @@ LOGGING = {
 }
 
 SPECTACULAR_SETTINGS = {
+    "COMPONENT_SPLIT_REQUEST": True,
     'TITLE': PROJECT_TITLE,
     'DESCRIPTION': 'API description',
     'VERSION': '1.0.0',

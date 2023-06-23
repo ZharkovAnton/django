@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from taggit.serializers import TagListSerializerField, TaggitSerializer
+from taggit.models import Tag
 
 from blog.models import Article, Category, Comment
 
@@ -34,14 +36,30 @@ class ArticleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Article
-        fields = ('title', 'url', 'author', 'category', 'created', 'updated', 'comments_count')
+        fields = ('title', 'url', 'author', 'category', 'created', 'updated', 'comments_count', 'image')
 
 
-class FullArticleSerializer(ArticleSerializer):
+class FullArticleSerializer(TaggitSerializer, ArticleSerializer):
     comments = CommentSerializer(source='comment_set', many=True)
+    tags = TagListSerializerField()
 
     class Meta(ArticleSerializer.Meta):
         fields = ArticleSerializer.Meta.fields + (
             'content',
             'comments',
+            'tags'
         )
+
+
+class ArticleCreateSerializer(serializers.ModelSerializer):
+    category = serializers.SlugRelatedField(
+        queryset=Category.objects.all(),
+        slug_field='slug'
+    )
+    class Meta:
+        model = Article
+        fields = ('title', 'category', 'content', 'image')
+
+
+class TagListSerializer(serializers.Serializer):
+    name = serializers.CharField()

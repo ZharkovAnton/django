@@ -23,7 +23,7 @@ class UserSignUpSerializer(serializers.Serializer):
     password_1 = serializers.CharField(write_only=True, min_length=8)
     password_2 = serializers.CharField(write_only=True, min_length=8)
 
-    def validate_password1(self, password: str):
+    def validate_password_1(self, password: str):
         validate_password(password)
         return password
 
@@ -73,6 +73,19 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
     uid = serializers.CharField()
     token = serializers.CharField()
 
+    def validate_password_1(self, password: str):
+        validate_password(password)
+        return password
+
+    def validate(self, data: dict) -> dict:
+        if data['password_1'] != data['password_2']:
+            raise serializers.ValidationError({'password_2': error_messages['password_not_match']})
+        return data
+
 
 class VerifyEmailSerializer(serializers.Serializer):
     key = serializers.CharField()
+
+
+class CaptchaSerializer(serializers.Serializer):
+    token = serializers.CharField()

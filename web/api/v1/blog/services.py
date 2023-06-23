@@ -1,4 +1,14 @@
+from typing import Optional
+from urllib.parse import urlencode, urljoin
+
 from django.db.models import Count
+from django.conf import settings
+from django.utils.translation import gettext_lazy as _
+from rest_framework import status
+from rest_framework.response import Response
+
+from api.email_services import BaseEmailHandler
+from main.models import UserType
 
 from blog.choices import ArticleStatus
 from blog.models import Article, Category
@@ -12,3 +22,76 @@ class BlogService:
     @staticmethod
     def get_active_articles():
         return Article.objects.filter(status=ArticleStatus.ACTIVE).annotate(comments_count=Count('comment_set'))
+
+
+class CreateArticleService:
+    def get_category(self, category_name: str):
+        return Category.objects.get(name=category_name)
+
+    def create_article(self, data: dict, user: UserType):
+        category = self.get_category(data['category'])
+
+        image = data.get('image', '')
+
+        article = Article.objects.create(
+            title=data['title'],
+            category=category,
+            content=data['content'],
+            image=image,
+            author=user
+        )
+
+        return article
+
+
+class EmailCreateArticleAdminHandler(BaseEmailHandler):
+    FRONTEND_URL = settings.FRONTEND_URL
+    TEMPLATE_NAME = 'blog/created-article-admin-email.html'
+
+    def __init__(self, article_id, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.article_id = article_id
+        self.FRONTEND_PATH = f'admin/blog/article/{self.article_id}/change'
+
+    def _get_activate_url(self) -> str:
+        url = urljoin(self.FRONTEND_URL, self.FRONTEND_PATH)
+        return f'{url}'
+
+    def email_kwargs(self, **kwargs) -> dict:
+        return {
+            'subject': _('New article moderation'),
+            'to_email': settings.SUPERUSER_EMAIL,
+            'context': {
+                'activate_url': self._get_activate_url(),
+            },
+        }
+
+
+
+class EmailCreateArticleUserHandler(BaseEmailHandler):
+    TEMPLATE_NAME = 'blog/created-article-user-email.html'
+
+    def email_kwargs(self, **kwargs) -> dict:
+        return {
+            'subject': _('New article moderation'),
+            'to_email': self.user,
+            'context': {}
+        }
+
+
+class EmailStatusArticleHandler(BaseEmailHandler):
+    TEMPLATE_NAME = 'blog/status-article-email.html'
+
+    def __init__(self, obj: Article, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.article = obj
+
+    def email_kwargs(self, **kwargs) -> dict:
+        return {
+            'subject': _('Article status'),
+            'to_email': self.article.author.email,
+            'context': {
+                'status': self.article.status,
+                'title': self.article.title,
+            }
+        }

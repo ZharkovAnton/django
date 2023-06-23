@@ -1,4 +1,3 @@
-console.log('sing-up')
 $(function () {
   $('#signUpForm').submit(singUp);
 });
@@ -6,5 +5,20 @@ $(function () {
 function singUp(e) {
   let form = $(this);
   e.preventDefault();
-  console.log('here')
+  $.ajax({
+    url: form.attr("action"),
+    type: "POST",
+    dataType: 'json',
+    data: form.serialize(),
+    success: function (data) {
+      location.reload();
+    },
+    error: function (data) {
+      let errors = data.responseJSON;
+      $.each(errors, function(key, value) {
+      let input = $('#'+key);
+      input.after('<span class="error">'+value+'</span>');
+    });
+    }
+  })
 }

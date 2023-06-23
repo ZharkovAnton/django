@@ -1,12 +1,18 @@
+import urllib
 from typing import TYPE_CHECKING, NamedTuple
 from urllib.parse import urlencode, urljoin
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import default_token_generator
 from django.db import transaction
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.translation import gettext_lazy as _
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
+from rest_framework.utils import json
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -16,7 +22,6 @@ from main.decorators import except_shell
 
 if TYPE_CHECKING:
     from main.models import UserType
-
 
 User: 'UserType' = get_user_model()
 
@@ -31,8 +36,8 @@ class CreateUserData(NamedTuple):
 
 class ConfirmationEmailHandler(BaseEmailHandler):
     FRONTEND_URL = settings.FRONTEND_URL
-    FRONTEND_PATH = '/confirm'
-    TEMPLATE_NAME = 'emails/verify_email.html'
+    FRONTEND_PATH = 'verify-email/'
+    TEMPLATE_NAME = 'auth_app/confirm_email.html'
 
     def _get_activate_url(self) -> str:
         url = urljoin(self.FRONTEND_URL, self.FRONTEND_PATH)
@@ -42,6 +47,7 @@ class ConfirmationEmailHandler(BaseEmailHandler):
             },
             safe=':+',
         )
+        print(self.FRONTEND_URL)
         return f'{url}?{query_params}'
 
     def email_kwargs(self, **kwargs) -> dict:
@@ -68,8 +74,15 @@ class AuthAppService:
     @transaction.atomic()
     def create_user(self, validated_data: dict):
         data = CreateUserData(**validated_data)
+        user = User.objects.create_user(
+            email=data.email,
+            password=data.password_1,
+            first_name=data.first_name,
+            last_name=data.last_name,
+            is_active=False,
+        )
         print(f'{data=}')
-        return User
+        return user
 
 
 def full_logout(request):
@@ -108,3 +121,95 @@ def full_logout(request):
         response.data = {"detail": message}
         response.status_code = status.HTTP_200_OK
     return response
+
+
+class ResetPasswordEmail(BaseEmailHandler):
+    FRONTEND_URL = settings.FRONTEND_URL
+    FRONTEND_PATH = 'password-change/'
+    TEMPLATE_NAME = 'auth_app/reset_password_email.html'
+
+    def __init__(self, email, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.email = email
+
+    def _get_activate_url(self) -> str:
+        url = urljoin(self.FRONTEND_URL, self.FRONTEND_PATH)
+        token, uid = PasswordResetHandler().user_token_uid(self.email)
+        query_params: str = urlencode(
+            {'uid': uid, 'token': token},
+            safe=':+',
+        )
+        return f'{url}?{query_params}'
+
+    def email_kwargs(self, **kwargs) -> dict:
+        return {
+            'subject': _('Reset password email'),
+            'to_email': self.email,
+            'context': {
+                'activate_url': self._get_activate_url(),
+            },
+        }
+
+
+class PasswordResetHandler:
+    @staticmethod
+    def get_user(email: str) -> User:
+        try:
+            return User.objects.get(email=email)
+        except (
+            User.DoesNotExist
+        ):  # нельзя возвращать ответ что такого email нет, так как могут начать подбирать email, нужно всегда писать что письмо отправлено
+            return None
+
+    def user_token_uid(self, email: str):
+        user = self.get_user(email)
+        if not user:
+            return None
+        token, uid = self.generate_token_uid(user)
+        return token, uid
+
+    @staticmethod
+    def generate_token_uid(user: User) -> tuple[str, str]:
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+        return token, uid
+
+    @staticmethod
+    def check_uid_token(token: str, uid: str) -> User:
+        try:
+            user_id = urlsafe_base64_decode(uid)
+            user = User.objects.get(pk=user_id)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            raise ValidationError('Invalid uid')
+            return None
+
+        if not default_token_generator.check_token(user, token):
+            raise ValidationError('Invalid token')
+            return None
+
+        return user
+
+
+class CaptchaHandler:
+    def __init__(self, token: str):
+        self.token = token
+
+    def _get_captcha_response(self) -> dict or None:
+        url = 'https://www.google.com/recaptcha/api/siteverify'
+        params = urlencode({'secret': settings.DRF_RECAPTCHA_SECRET_KEY, 'response': self.token})
+        data = f'{url}?{params}'
+        try:
+            req = urllib.request.Request(data, method='POST')
+            response = urllib.request.urlopen(req)
+            result = json.loads(response.read().decode())
+            return result
+        except urllib.error.HTTPError:
+            return None
+
+    def check_captcha_response(self) -> bool:
+        response = self._get_captcha_response()
+
+        if response and response['score'] >= 0.7:
+            return True
+
+        return False
