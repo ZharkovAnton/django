@@ -1,0 +1,15 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Confirm email</title>
+</head>
+<body>
+Привет!
+</body>
+
+{% block jquery %}
+$.getScript('{% static 'email/js/verify.js' %}');
+{% endblock %}
+</html>
