@@ -1,20 +1,17 @@
 $(function () {
   const articleDetail = new ArticleDetail()
   articleDetail.getArticleDetail()
+
+  const commentList = new CommentList()
+  commentList.getCommentList()
+
 });
 
 class ArticleDetail {
 
-  getSlug() {
-    const href = window.location.href
-    const arr = href.split("/");
-    const slug = arr[arr.length - 2];
-    return slug
-  }
-
   generateArticleDetailHTML(article) {
     return `
-    <div class="col-lg-8">
+
       <!-- the actual blog post: title/author/date/content -->
       <h1><a href="">${ article.title }</a></h1>
       <p class="lead"><i class="fa fa-user"></i> by <a href="">${article.author.full_name}</a>
@@ -37,36 +34,93 @@ class ArticleDetail {
 
       <br/>
       <hr>
+      <div class="well">
+        <h4><i class="fa fa-paper-plane-o"></i> Leave a Comment:</h4>
+        <form role="form">
+          <div class="form-group">
+            <textarea id="summernote" name="content" class="form-control input-lg"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary"><i class="fa fa-reply"></i> Submit</button>
+        </form>
+      </div>
+      <hr>
     </div>
     `
   };
 
   getArticleDetail() {
     const self = this;
-    const slug = this.getSlug()
+    const slug = getSlug()
     $.ajax({
       url: `/api/v1/article/${slug}`,
       type: 'GET',
-      success: function (response) {
-      response = self.formatDate(response)
-      const articleHTML = self.generateArticleDetailHTML(response)
-      const divRow = document.querySelector('div.row')
-      divRow.insertAdjacentHTML('beforeend', articleHTML);
+      success: function (data) {
+      data.updated = formatDate(data.updated)
+      const articleHTML = self.generateArticleDetailHTML(data)
+      const divCollg8 = document.querySelector('div.col-lg-8')
+      divCollg8.insertAdjacentHTML('afterbegin', articleHTML);
+      $('#summernote').summernote({
+        placeholder: 'Write your article ...',
+        height: 120,
+      });
       },
-      error: function (response) {
+      error: function (data) {
       alert('bad')
       }
   })
   }
+}
 
-  formatDate(response) {
-    const date = new Date(response.updated)
-    const options = { month: 'long', day: 'numeric', year: 'numeric' };
-    const updatedFormatted = date.toLocaleDateString('en-US', options);
-    const timeOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const timeFormatted = date.toLocaleTimeString('en-US', timeOptions);
-    const formattedDate = `${updatedFormatted} at ${timeFormatted}`;
-    response.updated = formattedDate
-    return response;
+class CommentList{
+  generateCommentListHTML(comment) {
+    return `
+    <h3><i class="fa fa-comment"></i> ${comment.author} says:
+    <small> ${comment.updated}</small>
+    </h3>
+    <p>${comment.content}</p>
+    `
   }
+
+  getCommentList() {
+    const self = this
+    const slug = getSlug()
+    $.ajax({
+      url: `/api/v1/article/comments/${slug}`,
+      type: 'GET',
+      success: function (data) {
+      const commentHTML = data.map(comment => {
+        comment.updated = formatDate(comment.updated)
+        return self.generateCommentListHTML(comment)
+      }).join('');
+
+
+      const divCollg8 = document.querySelector('div.col-lg-8')
+      divCollg8.insertAdjacentHTML('beforeend', commentHTML);
+      },
+      error: function (response) {
+      alert('bad')
+      }
+    })
+  }
+}
+
+function formatDate(data_date) {
+  const date = new Date(data_date);
+
+  const options = {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true
+  };
+
+  return date.toLocaleString('en-US', options);
+}
+
+function getSlug() {
+  const {href} = window.location;
+  const arr = href.split("/");
+  return arr[arr.length - 2];
 }

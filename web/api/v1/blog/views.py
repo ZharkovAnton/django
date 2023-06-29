@@ -1,5 +1,3 @@
-from django.db.migrations import serializer
-from django.db.models import Count
 from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
@@ -8,12 +6,11 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from django_filters.rest_framework import DjangoFilterBackend
 
-from taggit.serializers import TaggitSerializer
 from taggit.models import Tag
 
-from api.v1.blog.serializers import FullArticleSerializer, ArticleCreateSerializer, CategorySerializer, TagListSerializer
+from api.v1.blog.serializers import FullArticleSerializer, ArticleCreateSerializer, CategorySerializer, TagListSerializer, CommentSerializer
 from api.v1.blog.services import BlogService, CreateArticleService, EmailCreateArticleAdminHandler, EmailCreateArticleUserHandler
-from blog.models import Category
+from blog.models import Category, Comment
 from main.pagination import BasePageNumberPagination
 from api.v1.blog.filters import ArticleFilter
 
@@ -59,19 +56,6 @@ class ArticleCreateView(GenericAPIView):
     serializer_class = ArticleCreateSerializer
     parser_classes = [MultiPartParser, FormParser]
 
-    def get_serializer(self, *args, **kwargs):
-        if self.request.method == 'GET':
-            return CategorySerializer(*args, **kwargs)
-        return super().get_serializer(*args, **kwargs)
-
-    def get_queryset(self):
-        return Category.objects.all()
-
-    def get(self, request):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -91,6 +75,19 @@ class ArticleCreateView(GenericAPIView):
         )
 
 
+class CategoryListView(GenericAPIView):
+    serializer_class = CategorySerializer
+    permission_classes = (AllowAny,)
+
+    def get_queryset(self):
+        return Category.objects.all()
+
+    def get(self, request):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
 class TagListView(GenericAPIView):
     serializer_class = TagListSerializer
     permission_classes = (AllowAny, )  #  изменить доступ на удаление и апдейт
@@ -104,7 +101,14 @@ class TagListView(GenericAPIView):
         return Response(serializer.data)
 
 
-class ArticleTagsListView(GenericAPIView):
-    serializer_class = FullArticleSerializer
+class CommentListView(GenericAPIView):
+    serializer_class = CommentSerializer
     permission_classes = (AllowAny,)
-    
+
+    def get_queryset(self):
+        return Comment.objects.filter(article__slug=self.kwargs['article_slug']).order_by('-updated')
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)

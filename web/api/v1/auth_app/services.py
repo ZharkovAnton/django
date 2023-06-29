@@ -81,7 +81,6 @@ class AuthAppService:
             last_name=data.last_name,
             is_active=False,
         )
-        print(f'{data=}')
         return user
 
 

@@ -27,8 +27,6 @@ function login(e) {
   })
 }
 
-
-
 function passwordReset(e) {
   let form = $(this);
   e.preventDefault();

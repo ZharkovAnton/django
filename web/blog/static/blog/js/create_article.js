@@ -9,7 +9,7 @@ $(function () {
 
 function getCategories() {
   $.ajax({
-    url: '/api/v1/article/create/',
+    url: '/api/v1/article/category/',
     type: 'GET',
     success: function(response) {
       const generateCategoryHTML = (category) => {
