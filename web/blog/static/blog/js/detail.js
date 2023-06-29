@@ -4,34 +4,28 @@ $(function () {
 
   const commentList = new CommentList()
   commentList.getCommentList()
-
 });
 
 class ArticleDetail {
 
   generateArticleDetailHTML(article) {
     return `
-
       <!-- the actual blog post: title/author/date/content -->
       <h1><a href="">${ article.title }</a></h1>
       <p class="lead"><i class="fa fa-user"></i> by <a href="">${article.author.full_name}</a>
       </p>
       <hr>
-      <p><i class="fa fa-calendar"></i>${article.updated}</p>
+      <p><i class="fa fa-calendar"></i> ${article.updated}</p>
       <p><i class="fa fa-tags"></i> Tags: <a href=""><span class="badge badge-info">Bootstrap</span></a> <a
         href=""><span class="badge badge-info">Web</span></a> <a href=""><span class="badge badge-info">CSS</span></a>
         <a href=""><span class="badge badge-info">HTML</span></a></p>
-
       <hr>
       <img src="${article.image}" class="img-responsive">
       <hr>
       ${article.content}
       <br/>
       <p><h4>I like the post? Like this!</h4></p>
-
-
       <div class="g-plusone" data-annotation="inline" data-width="300" data-href=""></div>
-
       <br/>
       <hr>
       <div class="well">
@@ -59,10 +53,7 @@ class ArticleDetail {
       const articleHTML = self.generateArticleDetailHTML(data)
       const divCollg8 = document.querySelector('div.col-lg-8')
       divCollg8.insertAdjacentHTML('afterbegin', articleHTML);
-      $('#summernote').summernote({
-        placeholder: 'Write your article ...',
-        height: 120,
-      });
+      initSummernote()
       },
       error: function (data) {
       alert('bad')
@@ -93,7 +84,6 @@ class CommentList{
         return self.generateCommentListHTML(comment)
       }).join('');
 
-
       const divCollg8 = document.querySelector('div.col-lg-8')
       divCollg8.insertAdjacentHTML('beforeend', commentHTML);
       },
@@ -123,4 +113,11 @@ function getSlug() {
   const {href} = window.location;
   const arr = href.split("/");
   return arr[arr.length - 2];
+}
+
+function initSummernote() {
+  $('#summernote').summernote({
+    placeholder: 'Write your comment ...',
+    height: 120,
+  });
 }
