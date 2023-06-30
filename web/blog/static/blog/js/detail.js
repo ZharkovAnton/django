@@ -8,17 +8,21 @@ $(function () {
 
 class ArticleDetail {
 
+  generateTagsHTML(tag) {
+    return `
+      <a href=""><span class="badge badge-info">${tag}</span></a>
+    `
+  }
+
   generateArticleDetailHTML(article) {
+    const tagsHTML = article.tags.length ? article.tags.map(tag => this.generateTagsHTML(tag)).join('') : 'no tags';
     return `
       <!-- the actual blog post: title/author/date/content -->
-      <h1><a href="">${ article.title }</a></h1>
-      <p class="lead"><i class="fa fa-user"></i> by <a href="">${article.author.full_name}</a>
-      </p>
+      <h1><a href="">${article.title}</a></h1>
+      <p class="lead"><i class="fa fa-user"></i> by <a href="">${article.author.full_name}</a></p>
       <hr>
       <p><i class="fa fa-calendar"></i> ${article.updated}</p>
-      <p><i class="fa fa-tags"></i> Tags: <a href=""><span class="badge badge-info">Bootstrap</span></a> <a
-        href=""><span class="badge badge-info">Web</span></a> <a href=""><span class="badge badge-info">CSS</span></a>
-        <a href=""><span class="badge badge-info">HTML</span></a></p>
+      <p><i class="fa fa-tags"></i> Tags: ${tagsHTML}</p>
       <hr>
       <img src="${article.image}" class="img-responsive">
       <hr>
@@ -38,9 +42,8 @@ class ArticleDetail {
         </div>
       </div>
       <hr>
-    </div>
-    `
-  };
+    </div>`;
+  }
 
   getArticleDetail() {
     const self = this;
@@ -62,7 +65,7 @@ class ArticleDetail {
 }
 
 class CommentList{
-  generatechildHTML(child) {
+  generateСhildHTML(child) {
     return `
       <h4><i class="fa fa-comment"></i> ${child.user} says:
       <small> ${child.updated}</small>
@@ -76,7 +79,7 @@ class CommentList{
     if (comment.children!=false) {
       const childHTML = comment.children.map(child => {
         child.updated = formatDate(child.updated)
-        return this.generatechildHTML(child)
+        return this.generateСhildHTML(child)
       }).join('')
       return `
       <div class="comment">
