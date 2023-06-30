@@ -11,7 +11,7 @@ from api.email_services import BaseEmailHandler
 from main.models import UserType
 
 from blog.choices import ArticleStatus
-from blog.models import Article, Category
+from blog.models import Article, Category, Comment
 
 
 class BlogService:
@@ -26,22 +26,33 @@ class BlogService:
 
 class CreateArticleService:
     def get_category(self, category_name: str):
-        return Category.objects.get(name=category_name)
+        return Category.objects.get(name=category_name) # в valid_data находится объект Category, почему срабатывает поиск name= Category object
 
     def create_article(self, data: dict, user: UserType):
-        category = self.get_category(data['category'])
+        category = self.get_category(data['category']) # я так понимаю это уже можно удалить
 
         image = data.get('image', '')
 
         article = Article.objects.create(
             title=data['title'],
-            category=category,
+            category=data['category'],
             content=data['content'],
             image=image,
             author=user
         )
 
         return article
+
+
+class CreateCommentService:
+    def create_comment(self, data: dict, user: UserType):
+        return Comment.objects.create(
+            author=user.email,
+            user=user,
+            content=data['content'],
+            article=data['article'],
+            parent=data['parent']
+        )
 
 
 class EmailCreateArticleAdminHandler(BaseEmailHandler):

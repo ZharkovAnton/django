@@ -28,14 +28,14 @@ class ArticleDetail {
       <div class="g-plusone" data-annotation="inline" data-width="300" data-href=""></div>
       <br/>
       <hr>
-      <div class="well">
-        <h4><i class="fa fa-paper-plane-o"></i> Leave a Comment:</h4>
-        <form role="form">
-          <div class="form-group">
-            <textarea id="summernote" name="content" class="form-control input-lg"></textarea>
-          </div>
-          <button type="submit" class="btn btn-primary"><i class="fa fa-reply"></i> Submit</button>
-        </form>
+      <div class="well comment">
+        <h4><i class="fa fa-paper-plane-o"></i><a href="#" onclick="toggleReplyForm(event, this)"> Comments on the article</a></h4>
+        <div class="replyForm" style="display: none;">
+          <form class="replyForm" onsubmit="submitReply(event, this)" action="">
+            <textarea class="summernote"></textarea>
+            <button type="submit" class="btn btn-primary"><i class="fa fa-reply"></i> Submit</button>
+          </form>
+        </div>
       </div>
       <hr>
     </div>
@@ -53,7 +53,6 @@ class ArticleDetail {
       const articleHTML = self.generateArticleDetailHTML(data)
       const divCollg8 = document.querySelector('div.col-lg-8')
       divCollg8.insertAdjacentHTML('afterbegin', articleHTML);
-      initSummernote()
       },
       error: function (data) {
       alert('bad')
@@ -63,13 +62,59 @@ class ArticleDetail {
 }
 
 class CommentList{
-  generateCommentListHTML(comment) {
+  generatechildHTML(child) {
     return `
-    <h3><i class="fa fa-comment"></i> ${comment.author} says:
-    <small> ${comment.updated}</small>
-    </h3>
-    <p>${comment.content}</p>
-    `
+      <h4><i class="fa fa-comment"></i> ${child.user} says:
+      <small> ${child.updated}</small>
+      </h4>
+      <p>${child.content}</p>
+      <hr>
+      `
+  }
+
+  generateCommentListHTML(comment) {
+    if (comment.children!=false) {
+      const childHTML = comment.children.map(child => {
+        child.updated = formatDate(child.updated)
+        return this.generatechildHTML(child)
+      }).join('')
+      return `
+      <div class="comment">
+        <h3><i class="fa fa-comment"></i> ${comment.user} says:
+        <small> ${comment.updated}</small>
+        </h3>
+        <p>${comment.content}</p>
+        <p class="reply"><a href="#" onclick="toggleReplyForm(event, this)">Reply</a></p>
+        <div class="replyForm" style="display: none;">
+          <form class="replyForm" onsubmit="submitReply(event, this)" action="">
+            <textarea class="summernote"></textarea>
+            <button type="submit" class="btn btn-primary" value="${comment.id}><i class="fa fa-reply"></i> Submit</button>
+          </form>
+        </div>
+        <hr>
+        <div style="margin-left: 40px;">
+        ${childHTML}
+        </div>
+      </div>
+      `
+    } else {
+      return `
+      <div class="comment">
+        <h3><i class="fa fa-comment"></i> ${comment.user} says:
+        <small> ${comment.updated}</small>
+        </h3>
+        <p>${comment.content}</p>
+        <p class="reply"><a href="#" onclick="toggleReplyForm(event, this)">Reply</a></p>
+        <div class="replyForm" style="display: none;">
+          <form class="replyForm" onsubmit="submitReply(event, this)" action="">
+            <textarea class="summernote"></textarea>
+            <button type="submit" class="btn btn-primary" value="${comment.id}"><i class="fa fa-reply"></i> Submit</button>
+          </form>
+        </div>
+      </div>
+      <hr>
+      `
+    }
   }
 
   getCommentList() {
@@ -87,7 +132,7 @@ class CommentList{
       const divCollg8 = document.querySelector('div.col-lg-8')
       divCollg8.insertAdjacentHTML('beforeend', commentHTML);
       },
-      error: function (response) {
+      error: function (data) {
       alert('bad')
       }
     })
@@ -115,9 +160,50 @@ function getSlug() {
   return arr[arr.length - 2];
 }
 
-function initSummernote() {
-  $('#summernote').summernote({
-    placeholder: 'Write your comment ...',
-    height: 120,
-  });
+function toggleReplyForm(event, replyLink) {
+  const $comment = $(replyLink).closest('.comment');
+  const $replyForm = $comment.find('.replyForm');
+
+  if ($replyForm.is(':visible')) {
+    hideReplyForm($replyForm);
+  } else {
+    showReplyForm($replyForm);
+  }
+
+  event.preventDefault();
+}
+
+function showReplyForm($replyForm) {
+  $replyForm.show();
+  $replyForm.find('.summernote').summernote({placeholder: 'Write your comment ...', height: 120});
+}
+
+function hideReplyForm($replyForm) {
+  $replyForm.hide();
+  $replyForm.find('.summernote').summernote('destroy');
+}
+
+function submitReply(event, replyForm) {
+  event.preventDefault();
+  const form = $(replyForm);
+  const content = form[0][0].value
+  const article = getSlug()
+  const parent = parseInt(form[0][207].value) ? parent: ''
+  console.log(parent)
+  $.ajax({
+    url: '/api/v1/article/comment/create/',
+    type: 'POST',
+    dataType: 'json',
+    data: {
+      'content': content,
+      'parent': parent,
+      'article': article
+    },
+    success: function (data) {
+      location.reload()
+    },
+    error: function (data) {
+      console.log(data);
+    },
+  })
 }

@@ -8,8 +8,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from taggit.models import Tag
 
-from api.v1.blog.serializers import FullArticleSerializer, ArticleCreateSerializer, CategorySerializer, TagListSerializer, CommentSerializer
-from api.v1.blog.services import BlogService, CreateArticleService, EmailCreateArticleAdminHandler, EmailCreateArticleUserHandler
+from api.v1.blog.serializers import FullArticleSerializer, ArticleCreateSerializer, CategorySerializer, TagListSerializer, CommentSerializer, CommentCreateSerializer
+from api.v1.blog.services import BlogService, CreateArticleService, EmailCreateArticleAdminHandler, EmailCreateArticleUserHandler, CreateCommentService
 from blog.models import Category, Comment
 from main.pagination import BasePageNumberPagination
 from api.v1.blog.filters import ArticleFilter
@@ -112,3 +112,20 @@ class CommentListView(GenericAPIView):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+
+class CommentCreateView(GenericAPIView):
+    serializer_class = CommentCreateSerializer
+
+    def post(self, request):
+        print(request.data)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        service = CreateCommentService()
+        service.create_comment(data=serializer.validated_data, user=request.user)
+
+        return Response(
+            {'detail': _('The comment has been created')},
+            status=status.HTTP_201_CREATED,
+        )

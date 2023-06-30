@@ -8,6 +8,17 @@ from blog.models import Article, Category, Comment
 User = get_user_model()
 
 
+class FilterCommentListSerializer(serializers.ListSerializer):
+    def to_representation(self, data):
+        data = data.filter(parent=None)
+        return super().to_representation(data)
+
+
+class RecursiveSerializer(serializers.Serializer):
+    def to_representation(self, value):
+        serializer = self.parent.parent.__class__(value, context=self.context) # не понимаю как это работает
+        return serializer.data
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -15,9 +26,22 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    user = serializers.SlugRelatedField(
+        slug_field='full_name', read_only=True
+    )
+    children = RecursiveSerializer(many=True)
+
+    def to_representation(self, instance):
+        inst_repr = super().to_representation(instance)
+        sorted_children = sorted(inst_repr['children'], key=lambda x: x['updated'], reverse=True)
+        inst_repr['children'] = sorted_children
+
+        return inst_repr
+
     class Meta:
+        list_serializer_class = FilterCommentListSerializer # тоже надо объяснить
         model = Comment
-        fields = ('id', 'user', 'author', 'content', 'updated')
+        fields = ('id', 'user', 'content', 'updated', 'children')
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -40,13 +64,11 @@ class ArticleSerializer(serializers.ModelSerializer):
 
 
 class FullArticleSerializer(TaggitSerializer, ArticleSerializer):
-    comments = CommentSerializer(source='comment_set', many=True)
     tags = TagListSerializerField()
 
     class Meta(ArticleSerializer.Meta):
         fields = ArticleSerializer.Meta.fields + (
             'content',
-            'comments',
             'tags'
         )
 
@@ -63,3 +85,14 @@ class ArticleCreateSerializer(serializers.ModelSerializer):
 
 class TagListSerializer(serializers.Serializer):
     name = serializers.CharField()
+
+
+class CommentCreateSerializer(serializers.ModelSerializer):
+    article = serializers.SlugRelatedField(
+        queryset=Article.objects.all(),
+        slug_field='slug'
+    )
+    parent = serializers.PrimaryKeyRelatedField(queryset=Comment.objects.all(), allow_null=True)
+    class Meta:
+        model = Comment
+        fields = ('content', 'article', 'parent')
