@@ -37,7 +37,7 @@ class CreateUserData(NamedTuple):
 class ConfirmationEmailHandler(BaseEmailHandler):
     FRONTEND_URL = settings.FRONTEND_URL
     FRONTEND_PATH = 'verify-email/'
-    TEMPLATE_NAME = 'auth_app/confirm_email.html'
+    TEMPLATE_NAME = 'auth_app/email/confirm_email.html'
 
     def _get_activate_url(self) -> str:
         url = urljoin(self.FRONTEND_URL, self.FRONTEND_PATH)
@@ -125,7 +125,7 @@ def full_logout(request):
 class ResetPasswordEmail(BaseEmailHandler):
     FRONTEND_URL = settings.FRONTEND_URL
     FRONTEND_PATH = 'password-change/'
-    TEMPLATE_NAME = 'auth_app/reset_password_email.html'
+    TEMPLATE_NAME = 'auth_app/email/reset_password_email.html'
 
     def __init__(self, email, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -134,6 +134,10 @@ class ResetPasswordEmail(BaseEmailHandler):
     def _get_activate_url(self) -> str:
         url = urljoin(self.FRONTEND_URL, self.FRONTEND_PATH)
         token, uid = PasswordResetHandler().user_token_uid(self.email)
+
+        if token is None:
+            return None
+
         query_params: str = urlencode(
             {'uid': uid, 'token': token},
             safe=':+',
@@ -163,7 +167,7 @@ class PasswordResetHandler:
     def user_token_uid(self, email: str):
         user = self.get_user(email)
         if not user:
-            return None
+            return None, None
         token, uid = self.generate_token_uid(user)
         return token, uid
 
@@ -180,11 +184,9 @@ class PasswordResetHandler:
             user = User.objects.get(pk=user_id)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             raise ValidationError('Invalid uid')
-            return None
 
         if not default_token_generator.check_token(user, token):
             raise ValidationError('Invalid token')
-            return None
 
         return user
 
@@ -200,14 +202,12 @@ class CaptchaHandler:
         try:
             req = urllib.request.Request(data, method='POST')
             response = urllib.request.urlopen(req)
-            result = json.loads(response.read().decode())
-            return result
+            return json.loads(response.read().decode())
         except urllib.error.HTTPError:
             return None
 
     def check_captcha_response(self) -> bool:
         response = self._get_captcha_response()
-
         if response and response['score'] >= 0.7:
             return True
 

@@ -57,7 +57,7 @@ class CreateCommentService:
 
 class EmailCreateArticleAdminHandler(BaseEmailHandler):
     FRONTEND_URL = settings.FRONTEND_URL
-    TEMPLATE_NAME = 'blog/created-article-admin-email.html'
+    TEMPLATE_NAME = 'blog/email/created-article-admin-email.html'
 
     def __init__(self, article_id, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -80,7 +80,7 @@ class EmailCreateArticleAdminHandler(BaseEmailHandler):
 
 
 class EmailCreateArticleUserHandler(BaseEmailHandler):
-    TEMPLATE_NAME = 'blog/created-article-user-email.html'
+    TEMPLATE_NAME = 'blog/email/created-article-user-email.html'
 
     def email_kwargs(self, **kwargs) -> dict:
         return {
@@ -91,7 +91,7 @@ class EmailCreateArticleUserHandler(BaseEmailHandler):
 
 
 class EmailStatusArticleHandler(BaseEmailHandler):
-    TEMPLATE_NAME = 'blog/status-article-email.html'
+    TEMPLATE_NAME = 'blog/email/status-article-email.html'
 
     def __init__(self, obj: Article, *args, **kwargs):
         super().__init__(*args, **kwargs)
