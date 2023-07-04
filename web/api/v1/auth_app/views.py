@@ -71,8 +71,10 @@ class PasswordResetView(GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        email = ResetPasswordEmail(serializer.validated_data['email'])
-        email.send_email()
+        user = PasswordResetHandler().get_user(serializer.validated_data['email'])
+        if user:
+            email = ResetPasswordEmail(user.email)
+            email.send_email()
 
         return Response(
             {'detail': _('Password reset e-mail has been sent.')},

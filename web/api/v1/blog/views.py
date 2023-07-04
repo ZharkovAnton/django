@@ -106,7 +106,7 @@ class CommentListView(GenericAPIView):
     permission_classes = (AllowAny,)
 
     def get_queryset(self):
-        return Comment.objects.filter(article__slug=self.kwargs['article_slug']).order_by('-updated')
+        return Comment.objects.filter(article__slug=self.kwargs['article_slug'], parent__isnull=True).order_by('-updated')
 
     def get(self, request, *args, **kwargs):
         queryset = self.get_queryset()

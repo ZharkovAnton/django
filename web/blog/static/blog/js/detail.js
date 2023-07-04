@@ -191,8 +191,7 @@ function submitReply(event, replyForm) {
   const form = $(replyForm);
   const content = form[0][0].value
   const article = getSlug()
-  const parent = parseInt(form[0][207].value) ? parent: ''
-  console.log(parent)
+  const parent = parseInt(form[0][207].value) || ''
   $.ajax({
     url: '/api/v1/article/comment/create/',
     type: 'POST',

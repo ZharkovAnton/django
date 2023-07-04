@@ -1,5 +1,5 @@
 import urllib
-from typing import TYPE_CHECKING, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple, Optional
 from urllib.parse import urlencode, urljoin
 
 from django.conf import settings
@@ -156,7 +156,7 @@ class ResetPasswordEmail(BaseEmailHandler):
 
 class PasswordResetHandler:
     @staticmethod
-    def get_user(email: str) -> User:
+    def get_user(email: str) -> Optional[User]:
         try:
             return User.objects.get(email=email)
         except (

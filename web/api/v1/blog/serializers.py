@@ -8,12 +8,6 @@ from blog.models import Article, Category, Comment
 User = get_user_model()
 
 
-class FilterCommentListSerializer(serializers.ListSerializer):
-    def to_representation(self, data):
-        data = data.filter(parent=None)
-        return super().to_representation(data)
-
-
 class RecursiveSerializer(serializers.Serializer):
     def to_representation(self, value):
         serializer = self.parent.parent.__class__(value, context=self.context) # не понимаю как это работает
@@ -39,7 +33,6 @@ class CommentSerializer(serializers.ModelSerializer):
         return inst_repr
 
     class Meta:
-        list_serializer_class = FilterCommentListSerializer # тоже надо объяснить
         model = Comment
         fields = ('id', 'user', 'content', 'updated', 'children')
 
