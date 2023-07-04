@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.test.utils import override_settings
 from django.test import Client
+
 import pytest
 
 from api.v1.auth_app.services import AuthAppService
@@ -8,6 +10,11 @@ from api.v1.auth_app.services import AuthAppService
 User = get_user_model()
 
 pytestmark = [pytest.mark.django_db]
+
+locmem_email_backend = override_settings(
+    EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
+    CELERY_TASK_ALWAYS_EAGER=True,
+)
 
 @pytest.fixture
 def auth_service():

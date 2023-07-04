@@ -1,7 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.core import mail
-from django.test.utils import override_settings
+
+from api.v1.auth_app.tests.conftest import locmem_email_backend
 
 import re
 
@@ -10,11 +11,6 @@ import pytest
 pytestmark = [pytest.mark.django_db]
 
 User = get_user_model()
-
-locmem_email_backend = override_settings(
-    EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
-    CELERY_TASK_ALWAYS_EAGER=True,
-)
 
 @locmem_email_backend
 def test_sent_email_and_confirm(client):

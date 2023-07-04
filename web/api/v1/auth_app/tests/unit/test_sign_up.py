@@ -1,15 +1,10 @@
 from django.urls import reverse
-from django.test.utils import override_settings
+
+from api.v1.auth_app.tests.conftest import locmem_email_backend
 
 import pytest
 
 pytestmark = [pytest.mark.django_db]
-
-
-locmem_email_backend = override_settings(
-    EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
-    CELERY_TASK_ALWAYS_EAGER=True,
-)
 
 @locmem_email_backend
 @pytest.mark.parametrize(
