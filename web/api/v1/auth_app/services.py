@@ -37,7 +37,7 @@ class CreateUserData(NamedTuple):
 class ConfirmationEmailHandler(BaseEmailHandler):
     FRONTEND_URL = settings.FRONTEND_URL
     FRONTEND_PATH = 'verify-email/'
-    TEMPLATE_NAME = 'auth_app/email/confirm_email.html'
+    TEMPLATE_NAME = 'email/auth_app/confirm_email.html'
 
     def _get_activate_url(self) -> str:
         url = urljoin(self.FRONTEND_URL, self.FRONTEND_PATH)
@@ -124,7 +124,7 @@ def full_logout(request):
 class ResetPasswordEmail(BaseEmailHandler):
     FRONTEND_URL = settings.FRONTEND_URL
     FRONTEND_PATH = 'password-change/'
-    TEMPLATE_NAME = 'auth_app/email/reset_password_email.html'
+    TEMPLATE_NAME = 'email/auth_app/reset_password_email.html'
 
     def _get_activate_url(self) -> str:
         url = urljoin(self.FRONTEND_URL, self.FRONTEND_PATH)
