@@ -1,25 +1,24 @@
 from typing import TYPE_CHECKING
 
 from dj_rest_auth import views as auth_views
+from django.contrib.auth import get_user_model, login
 from django.contrib.auth import logout as django_logout
+from django.core import signing
 from django.core.signing import BadSignature
 from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from django.core import signing
-from django.contrib.auth import get_user_model
-from django.contrib.auth import login
 
 from . import serializers
 from .services import (
     AuthAppService,
-    full_logout,
-    ConfirmationEmailHandler,
-    ResetPasswordEmail,
-    PasswordResetHandler,
     CaptchaHandler,
+    ConfirmationEmailHandler,
+    PasswordResetHandler,
+    ResetPasswordEmail,
+    full_logout,
 )
 
 if TYPE_CHECKING:
@@ -73,7 +72,7 @@ class PasswordResetView(GenericAPIView):
 
         user = PasswordResetHandler().get_user(serializer.validated_data['email'])
         if user:
-            email = ResetPasswordEmail(user.email)
+            email = ResetPasswordEmail(user)
             email.send_email()
 
         return Response(

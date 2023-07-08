@@ -1,18 +1,31 @@
 from django.utils.translation import gettext_lazy as _
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.parsers import MultiPartParser, FormParser
-from django_filters.rest_framework import DjangoFilterBackend
-
 from taggit.models import Tag
 
-from api.v1.blog.serializers import FullArticleSerializer, ArticleCreateSerializer, CategorySerializer, TagListSerializer, CommentSerializer, CommentCreateSerializer
-from api.v1.blog.services import BlogService, CreateArticleService, EmailCreateArticleAdminHandler, EmailCreateArticleUserHandler, CreateCommentService
-from blog.models import Category, Comment
-from main.pagination import BasePageNumberPagination
 from api.v1.blog.filters import ArticleFilter
+from api.v1.blog.serializers import (
+    ArticleCreateSerializer,
+    CategorySerializer,
+    CommentCreateSerializer,
+    CommentSerializer,
+    FullArticleSerializer,
+    TagListSerializer,
+)
+from api.v1.blog.services import (
+    BlogService,
+    CreateArticleService,
+    CreateCommentService,
+    EmailCreateArticleAdminHandler,
+    EmailCreateArticleUserHandler,
+)
+from blog.models import Category, Comment
+
+from main.pagination import BasePageNumberPagination
 
 
 class ArticleListView(GenericAPIView):
@@ -37,7 +50,7 @@ class ArticleListView(GenericAPIView):
 
 class ArticleDetailView(GenericAPIView):
     serializer_class = FullArticleSerializer
-    permission_classes = (AllowAny, )  #  изменить доступ на удаление и апдейт
+    permission_classes = (AllowAny,)  #  изменить доступ на удаление и апдейт
 
     def get_queryset(self):
         return BlogService.get_active_articles()
@@ -63,7 +76,7 @@ class ArticleCreateView(GenericAPIView):
         service_create = CreateArticleService()
         article = service_create.create_article(data=serializer.validated_data, user=request.user)
 
-        service_email_admin = EmailCreateArticleAdminHandler(article_id=article.id)
+        service_email_admin = EmailCreateArticleAdminHandler(data=article, request=request)
         service_email_admin.send_email()
 
         service_email_user = EmailCreateArticleUserHandler(user=article.author.email)
@@ -90,7 +103,7 @@ class CategoryListView(GenericAPIView):
 
 class TagListView(GenericAPIView):
     serializer_class = TagListSerializer
-    permission_classes = (AllowAny, )  #  изменить доступ на удаление и апдейт
+    permission_classes = (AllowAny,)  #  изменить доступ на удаление и апдейт
 
     def get_queryset(self):
         return Tag.objects.all()
@@ -104,14 +117,19 @@ class TagListView(GenericAPIView):
 class CommentListView(GenericAPIView):
     serializer_class = CommentSerializer
     permission_classes = (AllowAny,)
+    pagination_class = BasePageNumberPagination
 
     def get_queryset(self):
-        return Comment.objects.filter(article__slug=self.kwargs['article_slug'], parent__isnull=True).order_by('-updated')
+        return Comment.objects.filter(article__slug=self.kwargs['article_slug'], parent__isnull=True).order_by(
+            '-updated'
+        )
 
     def get(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        paginator = self.pagination_class()
+        paginated_queryset = paginator.paginate_queryset(queryset, request)
+        serializer = self.get_serializer(paginated_queryset, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
 
 class CommentCreateView(GenericAPIView):

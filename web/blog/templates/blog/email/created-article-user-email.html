@@ -1,3 +1,5 @@
+{% load i18n static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,7 +7,11 @@
   <title>Article moderation</title>
 </head>
 <body>
-  <p>Your article has been submitted for moderation. Then it will be available</p>
+  <p>
+  {% blocktranslate %}
+    Your article has been submitted for moderation. Then it will be available
+  {% endblocktranslate %}
+  </p>
 </body>
 </html>
 

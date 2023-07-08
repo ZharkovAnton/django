@@ -1,0 +1,257 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-07-06 14:40+0300\n"
+"PO-Revision-Date: 2023-07-06 14:45+0300\n"
+"Last-Translator: Super Admin <19antoni88@gmail.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Translated-Using: django-rosetta 0.9.9\n"
+
+#: api/v1/auth_app/serializers.py:11 api/v1/auth_app/views.py:131
+msgid "Email not verified"
+msgstr ""
+
+#: api/v1/auth_app/serializers.py:12
+msgid "Your account is not active. Please contact Your administrator"
+msgstr ""
+
+#: api/v1/auth_app/serializers.py:13
+msgid "Entered email or password is incorrect"
+msgstr ""
+
+#: api/v1/auth_app/serializers.py:14
+msgid "User is already registered with this e-mail address"
+msgstr ""
+
+#: api/v1/auth_app/serializers.py:15
+msgid "The two password fields did not match"
+msgstr ""
+
+#: api/v1/auth_app/serializers.py:32
+msgid "User is already registered with this e-mail address."
+msgstr ""
+
+#: api/v1/auth_app/services.py:55
+msgid "Register confirmation email"
+msgstr ""
+
+#: api/v1/auth_app/services.py:88
+msgid "Successfully logged out."
+msgstr ""
+
+#: api/v1/auth_app/services.py:100
+msgid "Refresh token was not included in request data."
+msgstr ""
+
+#: api/v1/auth_app/services.py:108 api/v1/auth_app/services.py:112
+msgid "An error has occurred."
+msgstr ""
+
+#: api/v1/auth_app/services.py:117
+msgid ""
+"Neither cookies or blacklist are enabled, so the token has not been deleted "
+"server side. Please make sure the token is deleted client side."
+msgstr ""
+
+#: api/v1/auth_app/services.py:149
+msgid "Reset password email"
+msgstr ""
+
+#: api/v1/auth_app/views.py:46
+msgid "Confirmation email has been sent"
+msgstr ""
+
+#: api/v1/auth_app/views.py:80
+msgid "Password reset e-mail has been sent."
+msgstr ""
+
+#: api/v1/auth_app/views.py:103
+msgid "Password has been reset with the new password."
+msgstr ""
+
+#: api/v1/auth_app/views.py:126
+msgid "Email verified"
+msgstr ""
+
+#: api/v1/auth_app/views.py:148
+msgid "success"
+msgstr ""
+
+#: api/v1/auth_app/views.py:153
+msgid "bad"
+msgstr ""
+
+#: api/v1/blog/services.py:74
+#, python-format
+msgid "New article %(article_title)s."
+msgstr "Nuevo artículo %(article_title)s."
+
+#: api/v1/blog/services.py:89
+msgid "New article moderation"
+msgstr ""
+
+#: api/v1/blog/services.py:104
+msgid "Article status"
+msgstr ""
+
+#: api/v1/blog/views.py:73
+msgid "The article has been sent to moderate"
+msgstr ""
+
+#: api/v1/blog/views.py:132
+msgid "The comment has been created"
+msgstr ""
+
+#: auth_app/templates/auth_app/includes/birthday.html:2
+msgid "Enter your date of birth:"
+msgstr ""
+
+#: blog/choices.py:6
+msgid "Inactive"
+msgstr ""
+
+#: blog/choices.py:7
+msgid "Active"
+msgstr ""
+
+#: blog/models.py:22
+msgid "Category"
+msgstr ""
+
+#: blog/models.py:23
+msgid "Categories"
+msgstr ""
+
+#: blog/models.py:59
+msgid "Article"
+msgstr ""
+
+#: blog/models.py:60
+msgid "Articles"
+msgstr ""
+
+#: blog/models.py:76
+msgid "Comment"
+msgstr ""
+
+#: blog/models.py:77
+msgid "Comments"
+msgstr ""
+
+#: blog/templates/blog/email/created-article-admin-email.html:14
+#, python-format
+msgid ""
+"\n"
+"    A new article  %(article)s has been created on the website. Please\n"
+"    moderate it and activate or delete it.\n"
+"    Click on the button to moderate, if you do not see it please click on the\n"
+"    "
+msgstr ""
+"\n"
+"Se ha creado un nuevo artículo %(article)s en el sitio web. Por favor,\n"
+"modérelo y actívelo o elimínelo.\n"
+"Haga clic en el botón para moderar, si no lo ve por favor haga clic en el botón"
+
+#: blog/templates/blog/email/created-article-admin-email.html:19
+msgid "link"
+msgstr "enlace"
+
+#: blog/templates/blog/email/created-article-admin-email.html:21
+msgid "Moderate"
+msgstr "Moderado"
+
+#: blog/templates/blog/email/created-article-user-email.html:11
+msgid ""
+"\n"
+"    Your article has been submitted for moderation. Then it will be available\n"
+"  "
+msgstr ""
+"\n"
+"Su artículo ha sido sometido a moderación. Entonces estará disponible"
+
+#: contact_us/models.py:11
+msgid "Feedback"
+msgstr ""
+
+#: main/admin.py:18
+msgid "Personal info"
+msgstr ""
+
+#: main/admin.py:19
+msgid "Secrets"
+msgstr ""
+
+#: main/admin.py:21
+msgid "Permissions"
+msgstr ""
+
+#: main/admin.py:26
+msgid "Important dates"
+msgstr ""
+
+#: main/models.py:15
+msgid "Email address"
+msgstr ""
+
+#: main/models.py:23
+msgid "User"
+msgstr ""
+
+#: main/models.py:24
+msgid "Users"
+msgstr ""
+
+#: templates/includes/header_sign_status.html:9
+msgid "Hello"
+msgstr ""
+
+#: templates/includes/header_sign_status.html:13
+msgid "Profile"
+msgstr ""
+
+#: templates/includes/header_sign_status.html:15
+msgid "Log off"
+msgstr ""
+
+#: templates/includes/header_sign_status.html:20
+msgid "Sign in"
+msgstr ""
+
+#: templates/includes/header_sign_status.html:21
+msgid "Sign up"
+msgstr ""
+
+#: templates/index.html:14
+msgid "Lorem "
+msgstr ""
+
+#: templates/index.html:15 templates/index.html:25 templates/index.html:33
+msgid "Learn more"
+msgstr ""
+
+#: templates/index.html:20
+msgid "Lorem."
+msgstr ""
+
+#: templates/index.html:21 templates/index.html:29
+msgid ""
+"\n"
+"      Lorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolor\n"
+"      "
+msgstr ""
+
+#: templates/index.html:28
+msgid "Lorem"
+msgstr ""

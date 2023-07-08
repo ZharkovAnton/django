@@ -1,10 +1,10 @@
-from django.contrib.auth import get_user_model
-
 import pytest
+from django.contrib.auth import get_user_model
 
 pytestmark = [pytest.mark.django_db]
 
 User = get_user_model()
+
 
 class TestAuthService:
     def test_is_user_exists(self, user, auth_service):
@@ -15,7 +15,6 @@ class TestAuthService:
         assert auth_service.get_user(user.email)
         assert not auth_service.get_user('test_false@gmail.com')
 
-
     def test_create_user(self, auth_service):
         data = {
             'email': 'test@gmail.com',
@@ -23,7 +22,7 @@ class TestAuthService:
             'last_name': 'test2',
             'password_1': 'test1234',
             'password_2': 'test1234',
-            }
+        }
         user = auth_service.create_user(data)
         assert isinstance(user, User)
         assert user.email == data['email']

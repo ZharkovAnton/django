@@ -1,17 +1,19 @@
-from django.urls import reverse
 import pytest
+from django.urls import reverse
 
 pytestmark = [pytest.mark.django_db]
 
+
 @pytest.mark.parametrize(
-        ['test_input', 'status_code', 'is_access'],
-        [
-            ({'email': 'q@gmail.com' ,'password': '12345678'}, 200, True),
-            ({'email': 'q2@gmail.com' ,'password': '1234678'}, 400, False),
-            ({'email': 'q@gmail.com' ,'password': '34678'}, 400, False),
-            ({'password': '1234678'}, 400, False),
-            ({'email': 'q@gmail.com'}, 400, False)
-        ])
+    ['test_input', 'status_code', 'is_access'],
+    [
+        ({'email': 'q@gmail.com', 'password': '12345678'}, 200, True),
+        ({'email': 'q2@gmail.com', 'password': '1234678'}, 400, False),
+        ({'email': 'q@gmail.com', 'password': '34678'}, 400, False),
+        ({'password': '1234678'}, 400, False),
+        ({'email': 'q@gmail.com'}, 400, False),
+    ],
+)
 def test_success_sign_in(client, user, test_input, status_code, is_access):
     url = reverse('api:v1:auth_app:sign-in')
 

@@ -181,7 +181,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 LOCALE_PATHS = (os.path.join(BASE_DIR, 'locale'),)
 
-LANGUAGES = (('en', 'English'),)
+LANGUAGES = (
+    ('en', 'English'),
+    ('ru', 'Russian'),
+    ('es', 'Spanish'),
+)
 
 SESSION_COOKIE_NAME = 'sessionid'
 CSRF_COOKIE_NAME = 'csrftoken'

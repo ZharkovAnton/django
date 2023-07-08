@@ -1,12 +1,27 @@
+{% load i18n static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Article moderation</title>
+  <link href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-  <p>A new article has been created on the website. Please  <a href="{{ activate_url }}">moderate</a> it and activate or delete it</p>
-</body>
+  <p>
+    {% blocktranslate with article=article_title %}
+    A new article  {{ article }} has been created on the website. Please
+    moderate it and activate or delete it.
+    Click on the button to moderate, if you do not see it please click on the
+    {% endblocktranslate %}
+    <a href="{{ activate_url }}"> {% trans 'link' %}.</a>
+    <button class="btn btn-lg btn-primary btn-block signup-btn" type="button">
+      <a href="{{ activate_url }}" style="color:white">{% trans 'Moderate' %}</a>
+    </button>
+  </p>
+  </body>
 </html>
 
 

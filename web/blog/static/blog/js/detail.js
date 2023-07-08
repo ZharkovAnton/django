@@ -6,6 +6,8 @@ $(function () {
   commentList.getCommentList()
 });
 
+let pageNumber = 0
+
 class ArticleDetail {
 
   generateTagsHTML(tag) {
@@ -120,20 +122,31 @@ class CommentList{
     }
   }
 
-  getCommentList() {
+  getCommentList(page=null) {
     const self = this
     const slug = getSlug()
+    let url = `/api/v1/article/comments/${slug}/`
+    if (page) {
+      url += `?page=${page}`
+    }
     $.ajax({
-      url: `/api/v1/article/comments/${slug}`,
+      url: url,
       type: 'GET',
       success: function (data) {
-      const commentHTML = data.map(comment => {
-        comment.updated = formatDate(comment.updated)
-        return self.generateCommentListHTML(comment)
-      }).join('');
+        const commentHTML = data.results.map(comment => {
+          comment.updated = formatDate(comment.updated)
+          return self.generateCommentListHTML(comment)
+        }).join('');
 
-      const divCollg8 = document.querySelector('div.col-lg-8')
-      divCollg8.insertAdjacentHTML('beforeend', commentHTML);
+        if (data.next != null) {
+          pageNumber = data.next[data.next.indexOf('page=')+5]
+        } else {
+          pageNumber = null
+        }
+
+        const divCollg8 = document.querySelector('div.col-lg-8')
+        divCollg8.insertAdjacentHTML('beforeend', commentHTML);
+
       },
       error: function (data) {
       alert('bad')
@@ -209,3 +222,11 @@ function submitReply(event, replyForm) {
     },
   })
 }
+
+window.addEventListener('scroll', () => {
+  // Проверить, достиг ли пользователь конца страницы
+  if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight && pageNumber) {
+    const comm = new CommentList()
+    comm.getCommentList(pageNumber)
+  }
+});

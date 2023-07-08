@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from taggit.serializers import TagListSerializerField, TaggitSerializer
 from taggit.models import Tag
+from taggit.serializers import TaggitSerializer, TagListSerializerField
 
 from blog.models import Article, Category, Comment
 
@@ -10,8 +10,9 @@ User = get_user_model()
 
 class RecursiveSerializer(serializers.Serializer):
     def to_representation(self, value):
-        serializer = self.parent.parent.__class__(value, context=self.context) # не понимаю как это работает
+        serializer = self.parent.parent.__class__(value, context=self.context)  # не понимаю как это работает
         return serializer.data
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -20,9 +21,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    user = serializers.SlugRelatedField(
-        slug_field='full_name', read_only=True
-    )
+    user = serializers.SlugRelatedField(slug_field='full_name', read_only=True)
     children = RecursiveSerializer(many=True)
 
     def to_representation(self, instance):
@@ -60,17 +59,12 @@ class FullArticleSerializer(TaggitSerializer, ArticleSerializer):
     tags = TagListSerializerField()
 
     class Meta(ArticleSerializer.Meta):
-        fields = ArticleSerializer.Meta.fields + (
-            'content',
-            'tags'
-        )
+        fields = ArticleSerializer.Meta.fields + ('content', 'tags')
 
 
 class ArticleCreateSerializer(serializers.ModelSerializer):
-    category = serializers.SlugRelatedField(
-        queryset=Category.objects.all(),
-        slug_field='slug'
-    )
+    category = serializers.SlugRelatedField(queryset=Category.objects.all(), slug_field='slug')
+
     class Meta:
         model = Article
         fields = ('title', 'category', 'content', 'image')
@@ -81,11 +75,9 @@ class TagListSerializer(serializers.Serializer):
 
 
 class CommentCreateSerializer(serializers.ModelSerializer):
-    article = serializers.SlugRelatedField(
-        queryset=Article.objects.all(),
-        slug_field='slug'
-    )
+    article = serializers.SlugRelatedField(queryset=Article.objects.all(), slug_field='slug')
     parent = serializers.PrimaryKeyRelatedField(queryset=Comment.objects.all(), allow_null=True)
+
     class Meta:
         model = Comment
         fields = ('content', 'article', 'parent')

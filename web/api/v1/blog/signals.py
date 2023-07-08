@@ -1,7 +1,9 @@
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
-from blog.models import Article
+
 from api.v1.blog.services import EmailStatusArticleHandler
+from blog.models import Article
+
 
 @receiver(pre_save, sender=Article)
 def send_email_article_status(sender, instance, **kwargs):

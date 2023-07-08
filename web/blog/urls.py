@@ -11,4 +11,3 @@ urlpatterns = [
     path('blog/<slug:slug>/', TemplateAPIView.as_view(template_name='blog/post_detail.html'), name='post-detail'),
     path('create/', TemplateAPIView.as_view(template_name='blog/create_article.html'), name='create-article'),
 ]
-

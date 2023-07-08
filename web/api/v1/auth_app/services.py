@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.db import transaction
 from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -47,7 +47,6 @@ class ConfirmationEmailHandler(BaseEmailHandler):
             },
             safe=':+',
         )
-        print(self.FRONTEND_URL)
         return f'{url}?{query_params}'
 
     def email_kwargs(self, **kwargs) -> dict:
@@ -127,16 +126,9 @@ class ResetPasswordEmail(BaseEmailHandler):
     FRONTEND_PATH = 'password-change/'
     TEMPLATE_NAME = 'auth_app/email/reset_password_email.html'
 
-    def __init__(self, email, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.email = email
-
     def _get_activate_url(self) -> str:
         url = urljoin(self.FRONTEND_URL, self.FRONTEND_PATH)
-        token, uid = PasswordResetHandler().user_token_uid(self.email)
-
-        if token is None:
-            return None
+        token, uid = PasswordResetHandler().user_token_uid(self.user.email)
 
         query_params: str = urlencode(
             {'uid': uid, 'token': token},
@@ -147,7 +139,7 @@ class ResetPasswordEmail(BaseEmailHandler):
     def email_kwargs(self, **kwargs) -> dict:
         return {
             'subject': _('Reset password email'),
-            'to_email': self.email,
+            'to_email': self.user.email,
             'context': {
                 'activate_url': self._get_activate_url(),
             },

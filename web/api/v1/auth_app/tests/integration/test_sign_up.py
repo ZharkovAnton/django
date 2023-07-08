@@ -1,16 +1,16 @@
-from django.contrib.auth import get_user_model
-from django.urls import reverse
-from django.core import mail
-
-from api.v1.auth_app.tests.conftest import locmem_email_backend
-
 import re
 
 import pytest
+from django.contrib.auth import get_user_model
+from django.core import mail
+from django.urls import reverse
+
+from conftest import locmem_email_backend
 
 pytestmark = [pytest.mark.django_db]
 
 User = get_user_model()
+
 
 @locmem_email_backend
 def test_sent_email_and_confirm(client):
@@ -32,9 +32,7 @@ def test_sent_email_and_confirm(client):
     # Verification link testing
     email_message = mail.outbox[0]
     key = re.search(r'key=?([^\">]+)', str(email_message.message()))[1]
-    data_verify = {
-        'key': key
-    }
+    data_verify = {'key': key}
     verify_url = reverse('api:v1:auth_app:sign-up-verify')
     verify_response = client.post(verify_url, data=data_verify)
     assert verify_response.status_code == 200
