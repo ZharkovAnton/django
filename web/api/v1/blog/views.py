@@ -90,7 +90,7 @@ class ArticleCreateView(GenericAPIView):
 
 class CategoryListView(GenericAPIView):
     serializer_class = CategorySerializer
-    permission_classes = (AllowAny,)
+    permission_classes = (AllowAny, )
 
     def get_queryset(self):
         return Category.objects.all()

@@ -20,5 +20,4 @@ urlpatterns = [
     path(
         'verify-email/', TemplateView.as_view(template_name='auth_app/verify_email.html'), name='account_verification'
     ),
-    path('profile', TemplateView.as_view(template_name='auth_app/profile.html'), name='profile'),
 ]

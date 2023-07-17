@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from dj_rest_auth import views as auth_views
-from django.contrib.auth import get_user_model, login
+from django.contrib.auth import get_user_model
 from django.contrib.auth import logout as django_logout
 from django.core import signing
 from django.core.signing import BadSignature

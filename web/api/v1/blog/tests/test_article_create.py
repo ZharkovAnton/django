@@ -6,9 +6,9 @@ from django.core import mail
 from django.urls import reverse
 from django.utils.html import strip_tags
 
-from conftest import locmem_email_backend
 from blog.choices import ArticleStatus
 from blog.models import Article
+from conftest import locmem_email_backend
 
 pytestmark = [pytest.mark.django_db]
 

@@ -5,7 +5,9 @@ from django.core import signing
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from .choices import UserGender
 from .managers import UserManager
+from .services import user_directory_path
 
 UserType = TypeVar('UserType', bound='User')
 
@@ -13,6 +15,9 @@ UserType = TypeVar('UserType', bound='User')
 class User(AbstractUser):
     username = None  # type: ignore
     email = models.EmailField(_('Email address'), unique=True)
+    birthday = models.DateField(_('Birthday'), null=True, blank=True)
+    gender = models.PositiveSmallIntegerField(_('Gender'), choices=UserGender.choices, default=UserGender.UNKNOWN)
+    avatar = models.ImageField(upload_to=user_directory_path, blank=True, default='no-image-available.jpg')
 
     USERNAME_FIELD: str = 'email'
     REQUIRED_FIELDS: list[str] = []
@@ -33,3 +38,11 @@ class User(AbstractUser):
     @property
     def confirmation_key(self) -> str:
         return signing.dumps(obj=self.pk)
+
+    @property
+    def count_articles(self) -> int:
+        return self.article_set.count()
+
+    @property
+    def count_comments(self) -> int:
+        return self.comment_set.count()
