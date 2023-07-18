@@ -10,7 +10,7 @@
             {% else %}
                 Hello {{ user.full_name }}!
             {% endif %}
-            <a href="{% url 'profile_app:profile' %}?id={{ user.id }}"><i class="fas fa-user-circle"></i>{% trans 'Profile' %} </a>
+            <a href="{% url 'profile_app:profile' %}" data-userId="{{ user.id }}"><i class="fas fa-user-circle"></i>{% trans 'Profile' %} </a>
         </span></li>
         <li><a href="#" id="logoutSubmit">{% trans 'Log off' %}</a></li>
     </ul>

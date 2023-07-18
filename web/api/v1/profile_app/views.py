@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from django.contrib.auth import get_user_model
-from django.db.models import Count, F
+from django.db.models import Count, F, Case, Value, When, IntegerField
 from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
@@ -19,6 +19,8 @@ from api.v1.profile_app.serializers import (
 )
 from api.v1.profile_app.services import ProfileUpdateService
 
+from blog.models import Article, Comment
+
 if TYPE_CHECKING:
     from main.models import UserType
 
@@ -30,9 +32,8 @@ class ProfileDetailView(GenericAPIView):
     permission_classes = (AllowAny, )
 
     def get_queryset(self):
-        queryset = User.objects.all().annotate(comments=Count('comment_set'), articles=Count('article_set'))
-        print(str(queryset.query))
-        return queryset
+        # TODO User.objects.all().annotate(comments=Count('comment_set', distinct=True), articles=Count('article_set', distinct=True))
+        return User.objects.all()
 
     def get_object(self):
         queryset = self.get_queryset()

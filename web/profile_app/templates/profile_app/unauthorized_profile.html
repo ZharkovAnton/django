@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block container %}
+<div class="container bootstrap snippet">
+    </div><!--/row-->
+    {% endblock %}
+
+{% block jquery %}
+$.getScript('{% static 'profile_app/js/unauthorized_profile.js' %}');
+{% endblock %}

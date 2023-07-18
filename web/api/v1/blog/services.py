@@ -1,11 +1,8 @@
-from typing import Optional
 from urllib.parse import urlencode, urljoin
 
 from django.conf import settings
-from django.db.models import Count
+from django.db.models import Count, F
 from django.utils.translation import gettext_lazy as _
-from rest_framework import status
-from rest_framework.response import Response
 
 from api.email_services import BaseEmailHandler
 from blog.choices import ArticleStatus
@@ -21,7 +18,7 @@ class BlogService:
 
     @staticmethod
     def get_active_articles():
-        return Article.objects.filter(status=ArticleStatus.ACTIVE).annotate(comments_count=Count('comment_set'))
+        return Article.objects.filter(status=ArticleStatus.ACTIVE).annotate(comments_count=Count('comment_set')).order_by(F('created').asc())
 
 
 class CreateArticleService:

@@ -3,11 +3,17 @@ $(function () {
 });
 
 function getUserList() {
+  const spanNavbar = document.querySelector('span.navbar-brand');
+  const aTags = spanNavbar.querySelectorAll('a')
+  const lastElement = aTags[aTags.length - 1];
+  const userId = lastElement.getAttribute('data-userId');
   $.ajax({
     url: '/api/v1/profile/users/',
     type: "GET",
     success: function (data) {
-      const usersHTML = data.map(user => {
+      const filteredUsers = data.filter(user => user.id !== parseInt(userId));
+      const usersHTML = filteredUsers.map(user => {
+        console.log(user.id===userId)
         user.date_joined = formatDate(user.date_joined)
         return generateUserListHTML(user);
       }).join('')
@@ -26,7 +32,7 @@ function generateUserListHTML(user){
   <tr>
       <td>
           <img src="${user.avatar}" alt="no-image" width="120" height="90">
-          <a href="/profile/?id=${user.id}" class="user-link">${user.full_name}</a>
+          <a href="/profile/${user.id}" class="user-link">${user.full_name}</a>
       </td>
       <td>${user.date_joined}</td>
       <td class="text-center">
