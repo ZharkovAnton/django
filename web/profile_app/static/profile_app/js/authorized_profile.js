@@ -46,7 +46,6 @@ function updateBIOProfile(e) {
 function updatePasswordProfile(e) {
   e.preventDefault();
   const form = $(this)
-  console.log(userId);
   $.ajax({
     url: '/api/v1/profile/update/password/',
     type: "POST",

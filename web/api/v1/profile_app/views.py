@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from django.contrib.auth import get_user_model
-from django.db.models import Count, F, Case, Value, When, IntegerField
+from django.db.models import F
 from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
@@ -18,7 +18,6 @@ from api.v1.profile_app.serializers import (
     UserListSerializer,
 )
 from api.v1.profile_app.services import ProfileUpdateService
-
 from blog.models import Article, Comment
 
 if TYPE_CHECKING:

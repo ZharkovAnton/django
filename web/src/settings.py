@@ -77,6 +77,7 @@ LOCAL_APPS = [
     'blog.apps.BlogConfig',
     'contact_us.apps.ContactUsConfig',
     'profile_app.apps.ProfileAppConfig',
+    'actions.apps.ActionsConfig',
 ]
 
 INSTALLED_APPS += THIRD_PARTY_APPS + LOCAL_APPS

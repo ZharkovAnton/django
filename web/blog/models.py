@@ -1,9 +1,13 @@
 from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from rest_framework.reverse import reverse_lazy
 from taggit.managers import TaggableManager
+from django.db.models import Sum
+
+from actions.models import LikeDislike
 
 from .choices import ArticleStatus
 
@@ -39,7 +43,12 @@ class Article(models.Model):
     status = models.PositiveSmallIntegerField(choices=ArticleStatus.choices, default=ArticleStatus.INACTIVE)
     image = models.ImageField(upload_to='articles/', blank=True, default='no-image-available.jpg')
     objects = models.Manager()
+    votes = GenericRelation(LikeDislike, related_query_name='articles')
     tags = TaggableManager()
+
+    # @property
+    # def count_like_dislike(self):
+    #     return self.votes.sum_ratings()
 
     @property
     def short_title(self):
@@ -69,6 +78,7 @@ class Comment(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
+    votes = GenericRelation(LikeDislike, related_query_name='comments')
 
     objects = models.Manager()
 

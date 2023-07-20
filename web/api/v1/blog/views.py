@@ -23,9 +23,15 @@ from api.v1.blog.services import (
     EmailCreateArticleAdminHandler,
     EmailCreateArticleUserHandler,
 )
-from blog.models import Category, Comment
+from blog.models import Category, Comment, Article
 
 from main.pagination import BasePageNumberPagination
+
+
+from actions.models import LikeDislike
+from django.db.models import Count, Sum, OuterRef, Subquery
+from django.contrib.contenttypes.models import ContentType
+from django.db.models.functions import Coalesce
 
 
 class ArticleListView(GenericAPIView):
@@ -36,7 +42,10 @@ class ArticleListView(GenericAPIView):
     filterset_class = ArticleFilter
 
     def get_queryset(self):
-        queryset = BlogService.get_active_articles()
+        count_comment_subquery = Comment.objects.filter(article=OuterRef('id')).values('article').annotate(count_article=Count('content')).values('count_article')
+        sum_like_dislike_subquery = LikeDislike.objects.filter(content_type=ContentType.objects.get_for_model(Article), object_id=OuterRef('id')).values('object_id').annotate(sum_like_dislike=Sum('vote')).values('sum_like_dislike')
+        queryset = Article.objects.select_related('category', 'author').prefetch_related('tags', 'votes').all().annotate(comments_count=Coalesce(Subquery(count_comment_subquery), 0), count_like_dislike=Subquery(sum_like_dislike_subquery)).order_by('created')
+        # queryset = BlogService.get_active_articles() здесь было 38 запросов, а теперь их 6
         return self.filterset_class(self.request.GET, queryset=queryset).qs
 
     def get(self, request):

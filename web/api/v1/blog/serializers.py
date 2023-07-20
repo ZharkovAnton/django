@@ -4,6 +4,7 @@ from taggit.models import Tag
 from taggit.serializers import TaggitSerializer, TagListSerializerField
 
 from blog.models import Article, Category, Comment
+from api.v1.actions.serializers import LikeDislikeFullSerializer
 
 User = get_user_model()
 
@@ -49,10 +50,12 @@ class ArticleSerializer(serializers.ModelSerializer):
     author = UserSerializer()
     category = CategorySerializer()
     comments_count = serializers.IntegerField()
+    count_like_dislike = serializers.IntegerField()
+    votes = LikeDislikeFullSerializer(many=True)
 
     class Meta:
         model = Article
-        fields = ('title', 'url', 'author', 'category', 'created', 'updated', 'comments_count', 'image')
+        fields = ('title', 'url', 'author', 'category', 'created', 'updated', 'comments_count', 'image', 'id', 'count_like_dislike', 'votes')
 
 
 class FullArticleSerializer(TaggitSerializer, ArticleSerializer):
