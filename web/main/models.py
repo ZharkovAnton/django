@@ -38,11 +38,3 @@ class User(AbstractUser):
     @property
     def confirmation_key(self) -> str:
         return signing.dumps(obj=self.pk)
-
-    @property
-    def count_articles(self) -> int:
-        return self.article_set.count()
-
-    @property
-    def count_comments(self) -> int:
-        return self.comment_set.count()

@@ -9,21 +9,19 @@ from .managers import LikeDislikeManager
 
 User = get_user_model()
 
+
 class LikeDislike(models.Model):
-    LIKE = 1
-    DISLIKE = -1
+    class Vote(models.IntegerChoices):
+        LIKE = 1
+        DISLIKE = -1
 
-    VOTES = (
-        ('LIKE', 'Like'),
-        ('DISLIKE', 'Dislike'),
-    )
-
-    vote = models.SmallIntegerField(_('Vote'), choices=VOTES)
-    user = models.ForeignKey(User, verbose_name=_('User'), on_delete=models.CASCADE)
+    vote = models.SmallIntegerField(_('Vote'), choices=Vote.choices)
+    user = models.ForeignKey(User, verbose_name=_('User'), on_delete=models.CASCADE, related_name='likes_dislikes')
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey()
+    created = models.DateTimeField(auto_now=True)
 
     objects = LikeDislikeManager()
 
@@ -32,3 +30,9 @@ class LikeDislike(models.Model):
 
     def articles(self):
         return self.get_queryset().filter(content_type__models='articles').order_by(F('created').asc())
+
+
+# class Follower(models.Model):
+#     subsciber = models.ForeignKey(User)
+#     to_user = models.ForeignKey(User)
+#     created = models.DateTimeField(auto_now_add=True)

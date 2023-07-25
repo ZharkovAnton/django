@@ -3,16 +3,10 @@ from rest_framework import serializers
 from taggit.models import Tag
 from taggit.serializers import TaggitSerializer, TagListSerializerField
 
-from blog.models import Article, Category, Comment
 from api.v1.actions.serializers import LikeDislikeFullSerializer
+from blog.models import Article, Category, Comment
 
 User = get_user_model()
-
-
-class RecursiveSerializer(serializers.Serializer):
-    def to_representation(self, value):
-        serializer = self.parent.parent.__class__(value, context=self.context)  # не понимаю как это работает
-        return serializer.data
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -23,18 +17,18 @@ class UserSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     user = serializers.SlugRelatedField(slug_field='full_name', read_only=True)
-    children = RecursiveSerializer(many=True)
+    children = serializers.SerializerMethodField()
+    votes = LikeDislikeFullSerializer(many=True)
+    count_like = serializers.IntegerField()
 
-    def to_representation(self, instance):
-        inst_repr = super().to_representation(instance)
-        sorted_children = sorted(inst_repr['children'], key=lambda x: x['updated'], reverse=True)
-        inst_repr['children'] = sorted_children
-
-        return inst_repr
+    def get_children(self, comment):
+        children_comments = comment.children.all()
+        serializer = CommentSerializer(instance=children_comments, many=True)
+        return serializer.data
 
     class Meta:
         model = Comment
-        fields = ('id', 'user', 'content', 'updated', 'children')
+        fields = ('id', 'user', 'content', 'updated', 'children', 'count_like', 'votes')
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -55,7 +49,19 @@ class ArticleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Article
-        fields = ('title', 'url', 'author', 'category', 'created', 'updated', 'comments_count', 'image', 'id', 'count_like_dislike', 'votes')
+        fields = (
+            'title',
+            'url',
+            'author',
+            'category',
+            'created',
+            'updated',
+            'comments_count',
+            'image',
+            'id',
+            'count_like_dislike',
+            'votes',
+        )
 
 
 class FullArticleSerializer(TaggitSerializer, ArticleSerializer):

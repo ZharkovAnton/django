@@ -5,19 +5,32 @@ from rest_framework import serializers
 
 User = get_user_model()
 
+
 class ProfileSerializer(serializers.ModelSerializer):
+    count_articles = serializers.IntegerField()
+    count_comments = serializers.IntegerField()
+    total_likes = serializers.IntegerField()
 
     class Meta:
         model = User
-        fields = ('first_name', 'full_name', 'last_name', 'email', 'birthday', 'gender', 'avatar', 'count_articles', 'count_comments')
+        fields = (
+            'first_name',
+            'full_name',
+            'last_name',
+            'email',
+            'birthday',
+            'gender',
+            'avatar',
+            'count_articles',
+            'count_comments',
+            'total_likes',
+        )
 
 
 class ProfileUpdateBIOSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
         fields = ('first_name', 'last_name', 'birthday', 'gender')
-
 
 
 class ProfileUpdatePasswordSerializer(serializers.ModelSerializer):
@@ -44,12 +57,10 @@ class ProfileUpdatePasswordSerializer(serializers.ModelSerializer):
         return data
 
 
-
 class ProfileUpdateAvatarSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
-        fields = ('avatar', )
+        fields = ('avatar',)
 
 
 class UserListSerializer(serializers.ModelSerializer):

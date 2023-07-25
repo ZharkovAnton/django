@@ -1,7 +1,8 @@
 from typing import TYPE_CHECKING
 
 from django.contrib.auth import get_user_model
-from django.db.models import F
+from django.db.models import Count, F, OuterRef, Subquery, Sum
+from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
@@ -9,6 +10,7 @@ from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
+from actions.models import LikeDislike
 from api.permissions import IsOwnerOrReadOnly
 from api.v1.profile_app.serializers import (
     ProfileSerializer,
@@ -28,15 +30,36 @@ User: 'UserType' = get_user_model()
 
 class ProfileDetailView(GenericAPIView):
     serializer_class = ProfileSerializer
-    permission_classes = (AllowAny, )
+    permission_classes = (AllowAny,)
 
     def get_queryset(self):
-        # TODO User.objects.all().annotate(comments=Count('comment_set', distinct=True), articles=Count('article_set', distinct=True))
-        return User.objects.all()
+        count_comment_subquery = (
+            Comment.objects.filter(user=OuterRef('id'))
+            .values('author')
+            .annotate(count_comments=Count('content'))
+            .values('count_comments')
+        )
+        count_article_subquery = (
+            Article.objects.filter(author=OuterRef('id'))
+            .values('author')
+            .annotate(count_article=Count('content'))
+            .values('count_article')
+        )
+        total_likes = (
+            LikeDislike.objects.filter(content_type=11, user=OuterRef('id'))
+            .values('user')
+            .annotate(total_likes=Sum('vote'))
+            .values('total_likes')
+        )
+        return User.objects.all().annotate(
+            count_articles=Coalesce(Subquery(count_article_subquery), 0),
+            count_comments=Coalesce(Subquery(count_comment_subquery), 0),
+            total_likes=Coalesce(Subquery(total_likes), 0),
+        )
 
     def get_object(self):
         queryset = self.get_queryset()
-        return  queryset.get(id=self.kwargs['user_id'])
+        return queryset.get(id=self.kwargs['user_id'])
 
     def get(self, request, *args, **kwargs):
         obj = self.get_object()
@@ -46,7 +69,7 @@ class ProfileDetailView(GenericAPIView):
 
 class ProfileUpdateBIOView(GenericAPIView):
     serializer_class = ProfileUpdateBIOSerializer
-    permission_classes = (IsOwnerOrReadOnly, )
+    permission_classes = (IsOwnerOrReadOnly,)
 
     def put(self, request):
         serializer = self.get_serializer(data=request.data)
@@ -63,7 +86,7 @@ class ProfileUpdateBIOView(GenericAPIView):
 
 class ProfileUpdatePasswordView(GenericAPIView):
     serializer_class = ProfileUpdatePasswordSerializer
-    permission_classes = (IsOwnerOrReadOnly, )
+    permission_classes = (IsOwnerOrReadOnly,)
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -80,7 +103,7 @@ class ProfileUpdatePasswordView(GenericAPIView):
 
 class ProfileUpdateAvatarView(GenericAPIView):
     serializer_class = ProfileUpdateAvatarSerializer
-    permission_classes = (IsOwnerOrReadOnly, )
+    permission_classes = (IsOwnerOrReadOnly,)
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request, *args, **kwargs):
@@ -98,7 +121,7 @@ class ProfileUpdateAvatarView(GenericAPIView):
 
 class UsersListView(GenericAPIView):
     serializer_class = UserListSerializer
-    permission_classes = (AllowAny, )
+    permission_classes = (AllowAny,)
 
     def get_queryset(self):
         return User.objects.all().order_by(F('is_active').desc(), F('date_joined').asc())

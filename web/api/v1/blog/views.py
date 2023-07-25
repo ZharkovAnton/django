@@ -1,3 +1,6 @@
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Count, OuterRef, Prefetch, Subquery, Sum
+from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
@@ -7,6 +10,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from taggit.models import Tag
 
+from actions.models import LikeDislike
 from api.v1.blog.filters import ArticleFilter
 from api.v1.blog.serializers import (
     ArticleCreateSerializer,
@@ -23,15 +27,9 @@ from api.v1.blog.services import (
     EmailCreateArticleAdminHandler,
     EmailCreateArticleUserHandler,
 )
-from blog.models import Category, Comment, Article
+from blog.models import Article, Category, Comment
 
 from main.pagination import BasePageNumberPagination
-
-
-from actions.models import LikeDislike
-from django.db.models import Count, Sum, OuterRef, Subquery
-from django.contrib.contenttypes.models import ContentType
-from django.db.models.functions import Coalesce
 
 
 class ArticleListView(GenericAPIView):
@@ -41,11 +39,32 @@ class ArticleListView(GenericAPIView):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ArticleFilter
 
+    # TODO: перенести запросы в сервис
     def get_queryset(self):
-        count_comment_subquery = Comment.objects.filter(article=OuterRef('id')).values('article').annotate(count_article=Count('content')).values('count_article')
-        sum_like_dislike_subquery = LikeDislike.objects.filter(content_type=ContentType.objects.get_for_model(Article), object_id=OuterRef('id')).values('object_id').annotate(sum_like_dislike=Sum('vote')).values('sum_like_dislike')
-        queryset = Article.objects.select_related('category', 'author').prefetch_related('tags', 'votes').all().annotate(comments_count=Coalesce(Subquery(count_comment_subquery), 0), count_like_dislike=Subquery(sum_like_dislike_subquery)).order_by('created')
-        # queryset = BlogService.get_active_articles() здесь было 38 запросов, а теперь их 6
+        count_comment_subquery = (
+            Comment.objects.filter(article=OuterRef('id'))
+            .values('article')
+            .annotate(count_article=Count('content'))
+            .values('count_article')
+        )
+        sum_like_dislike_subquery = (
+            LikeDislike.objects.filter(
+                content_type=ContentType.objects.get_for_model(Article), object_id=OuterRef('id')
+            )
+            .values('object_id')
+            .annotate(sum_like_dislike=Sum('vote'))
+            .values('sum_like_dislike')
+        )
+        queryset = (
+            Article.objects.select_related('category', 'author')
+            .prefetch_related('tags', 'votes')
+            .all()
+            .annotate(
+                comments_count=Coalesce(Subquery(count_comment_subquery), 0),
+                count_like_dislike=Subquery(sum_like_dislike_subquery),
+            )
+            .order_by('created')
+        )
         return self.filterset_class(self.request.GET, queryset=queryset).qs
 
     def get(self, request):
@@ -59,10 +78,35 @@ class ArticleListView(GenericAPIView):
 
 class ArticleDetailView(GenericAPIView):
     serializer_class = FullArticleSerializer
-    permission_classes = (AllowAny,)  #  изменить доступ на удаление и апдейт
+    # TODO:  изменить доступ на удаление и апдейт
+    permission_classes = (AllowAny,)
 
+    # TODO: перенести запросы в сервис
     def get_queryset(self):
-        return BlogService.get_active_articles()
+        count_comment_subquery = (
+            Comment.objects.filter(article=OuterRef('id'))
+            .values('article')
+            .annotate(count_article=Count('content'))
+            .values('count_article')
+        )
+        sum_like_dislike_subquery = (
+            LikeDislike.objects.filter(
+                content_type=ContentType.objects.get_for_model(Article), object_id=OuterRef('id')
+            )
+            .values('object_id')
+            .annotate(sum_like_dislike=Sum('vote'))
+            .values('sum_like_dislike')
+        )
+        return (
+            Article.objects.select_related('category', 'author')
+            .prefetch_related('tags', 'votes')
+            .all()
+            .annotate(
+                comments_count=Coalesce(Subquery(count_comment_subquery), 0),
+                count_like_dislike=Subquery(sum_like_dislike_subquery),
+            )
+            .order_by('created')
+        )
 
     def get_object(self):
         queryset = self.get_queryset()
@@ -99,7 +143,7 @@ class ArticleCreateView(GenericAPIView):
 
 class CategoryListView(GenericAPIView):
     serializer_class = CategorySerializer
-    permission_classes = (AllowAny, )
+    permission_classes = (AllowAny,)
 
     def get_queryset(self):
         return Category.objects.all()
@@ -128,9 +172,27 @@ class CommentListView(GenericAPIView):
     permission_classes = (AllowAny,)
     pagination_class = BasePageNumberPagination
 
+    # TODO: возможно нужно перенести в сервис
     def get_queryset(self):
-        return Comment.objects.filter(article__slug=self.kwargs['article_slug'], parent__isnull=True).order_by(
-            '-updated'
+        sum_like_dislike_subquery = (
+            LikeDislike.objects.filter(content_type=13, object_id=OuterRef('id'))
+            .values('object_id')
+            .annotate(count_like=Sum('vote'))
+            .values('count_like')
+        )
+
+        children_prefetch_subquery = (
+            Comment.objects.filter(article__slug=self.kwargs['article_slug'], parent__isnull=False)
+            .annotate(count_like=Coalesce(Subquery(sum_like_dislike_subquery), 0))
+            .prefetch_related('votes')
+            .order_by('-updated')
+        )
+
+        return (
+            Comment.objects.filter(article__slug=self.kwargs['article_slug'], parent__isnull=True)
+            .annotate(count_like=Coalesce(Subquery(sum_like_dislike_subquery), 0))
+            .prefetch_related('votes', Prefetch('children', queryset=children_prefetch_subquery))
+            .order_by('-updated')
         )
 
     def get(self, request, *args, **kwargs):
@@ -145,7 +207,6 @@ class CommentCreateView(GenericAPIView):
     serializer_class = CommentCreateSerializer
 
     def post(self, request):
-        print(request.data)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 

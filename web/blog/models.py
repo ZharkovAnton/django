@@ -1,11 +1,11 @@
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
+from django.db.models import Sum
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from rest_framework.reverse import reverse_lazy
 from taggit.managers import TaggableManager
-from django.db.models import Sum
 
 from actions.models import LikeDislike
 
@@ -45,10 +45,6 @@ class Article(models.Model):
     objects = models.Manager()
     votes = GenericRelation(LikeDislike, related_query_name='articles')
     tags = TaggableManager()
-
-    # @property
-    # def count_like_dislike(self):
-    #     return self.votes.sum_ratings()
 
     @property
     def short_title(self):
