@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from actions.models import LikeDislike
 
 from .serializers import LikeDislikeUpdateSerializer
+from .services import LikeDislikeService
 
 
 class VotesView(GenericAPIView):
@@ -18,26 +19,12 @@ class VotesView(GenericAPIView):
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        # TODO: перенести в сервис логику
-        model = apps.get_model(app_label='blog', model_name=serializer.validated_data['model'])
-        vote_type = serializer.validated_data['vote_type']
-        obj = model.objects.get(pk=serializer.validated_data['object_id'])
-        try:
-            likedislike = LikeDislike.objects.get(
-                content_type=ContentType.objects.get_for_model(obj), object_id=obj.id, user=request.user
-            )
-            if likedislike.vote is not vote_type:
-                likedislike.vote = vote_type
-                likedislike.save(update_fields=['vote'])
-            else:
-                likedislike.delete()
-        except LikeDislike.DoesNotExist:
-            obj.votes.create(user=request.user, vote=vote_type)
 
-        sum_likes = LikeDislike.objects.filter(
-            content_type=ContentType.objects.get_for_model(obj), object_id=obj.id
-        ).aggregate(sum_likes=Coalesce(Sum('vote'), 0))['sum_likes']
-        print(sum_likes)
+        # [x]: перенес в сервис
+        service = LikeDislikeService(serializer.validated_data, request.user)
+        service.save_or_delete_like_dislike()
+
+        sum_likes = service.get_sum_likes()
 
         return Response(
             {'detail': _('The like has been updated'), 'sum_likes': sum_likes},

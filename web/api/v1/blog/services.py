@@ -26,6 +26,7 @@ class BlogService:
 
 
 class CreateArticleService:
+    # TODO: исправить
     def get_category(self, category_name: str):
         return Category.objects.get(
             name=category_name
@@ -36,11 +37,13 @@ class CreateArticleService:
 
         image = data.get('image', '')
 
-        article = Article.objects.create(
-            title=data['title'], category=data['category'], content=data['content'], image=image, author=user
+        return Article.objects.create(
+            title=data['title'],
+            category=data['category'],
+            content=data['content'],
+            image=image,
+            author=user,
         )
-
-        return article
 
 
 class CreateCommentService:
@@ -54,6 +57,7 @@ class EmailCreateArticleAdminHandler(BaseEmailHandler):
     FRONTEND_URL = settings.FRONTEND_URL
     TEMPLATE_NAME = 'email/blog/created-article-admin-email.html'
 
+    # TODO: исправить
     def __init__(self, data, request, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.article = data

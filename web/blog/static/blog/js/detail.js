@@ -312,10 +312,8 @@ function likeDislike (event, element) {
       if (model === 'Article') {
         // [x]: количество лайков для статьи
         const svgA = divRow.querySelector(`#${searchId}`).querySelector('svg')
-        if (data.sum_likes >= 0){
-          const spanNumLike = divRow.querySelector(`#article_${objectId}`)
-          spanNumLike.textContent = data.sum_likes
-        }
+        const spanNumLike = divRow.querySelector(`#article_${objectId}`)
+        spanNumLike.textContent = data.sum_likes > 0 ? data.sum_likes : 0
 
         if (svgElement.getAttribute('fill') === 'black' && type === 1) {
           svgElement.setAttribute('fill', 'green');
