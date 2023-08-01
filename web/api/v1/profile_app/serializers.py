@@ -10,6 +10,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     count_articles = serializers.IntegerField()
     count_comments = serializers.IntegerField()
     total_likes = serializers.IntegerField()
+    count_followers = serializers.IntegerField()
 
     class Meta:
         model = User
@@ -24,6 +25,8 @@ class ProfileSerializer(serializers.ModelSerializer):
             'count_articles',
             'count_comments',
             'total_likes',
+            'count_followers',
+            'followers'
         )
 
 

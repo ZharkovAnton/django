@@ -51,10 +51,22 @@ class ProfileDetailView(GenericAPIView):
             .annotate(total_likes=Sum('vote'))
             .values('total_likes')
         )
-        return User.objects.all().annotate(
+
+        count_followers = (
+            User.objects.filter(following=OuterRef('id'))
+            .values('following')
+            .annotate(count_followers=Count('email'))
+            .values('count_followers')
+            )
+
+
+        print(self.request.user.id)
+
+        return User.objects.annotate(
             count_articles=Coalesce(Subquery(count_article_subquery), 0),
             count_comments=Coalesce(Subquery(count_comment_subquery), 0),
             total_likes=Coalesce(Subquery(total_likes), 0),
+            count_followers=Coalesce(Subquery(count_followers), 0),
         )
 
     def get_object(self):

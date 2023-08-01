@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import TextChoices
 from rest_framework import serializers
 
-from actions.models import LikeDislike
+from actions.models import Follower, LikeDislike
 
 User = get_user_model()
 
@@ -22,3 +22,13 @@ class LikeDislikeFullSerializer(serializers.ModelSerializer):
     class Meta:
         model = LikeDislike
         fields = ('user', 'vote')
+
+
+class FollowersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'full_name', 'avatar', 'email')
+
+
+class FollowersUpdateDeleteSerializer(serializers.Serializer):
+    id = serializers.IntegerField(min_value=1)

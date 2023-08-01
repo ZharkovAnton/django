@@ -1,11 +1,16 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block head %}
+<link href="{% static 'profile_app/css/profile.css' %}" rel="stylesheet">
+{% endblock head %}
+
 {% block container %}
 <div class="container bootstrap snippet">
     </div><!--/row-->
     {% endblock %}
 
 {% block jquery %}
+$.getScript('{% static 'actions/js/followers_unauthorized_profile.js' %}');
 $.getScript('{% static 'profile_app/js/unauthorized_profile.js' %}');
-{% endblock %}
+{% endblock jquery %}

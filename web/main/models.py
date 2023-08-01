@@ -18,6 +18,14 @@ class User(AbstractUser):
     birthday = models.DateField(_('Birthday'), null=True, blank=True)
     gender = models.PositiveSmallIntegerField(_('Gender'), choices=UserGender.choices, default=UserGender.UNKNOWN)
     avatar = models.ImageField(upload_to=user_directory_path, blank=True, default='no-image-available.jpg')
+    following = models.ManyToManyField(
+        'self',
+        blank=True,
+        null=True,
+        related_name='followers',
+        symmetrical=False,
+        through='actions.Follower',
+    )
 
     USERNAME_FIELD: str = 'email'
     REQUIRED_FIELDS: list[str] = []

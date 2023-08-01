@@ -32,7 +32,12 @@ class LikeDislike(models.Model):
         return self.get_queryset().filter(content_type__models='articles').order_by(F('created').asc())
 
 
-# class Follower(models.Model):
-#     subsciber = models.ForeignKey(User)
-#     to_user = models.ForeignKey(User)
-#     created = models.DateTimeField(auto_now_add=True)
+class Follower(models.Model):
+    subscriber = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
+    to_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = (
+            models.UniqueConstraint(fields=('subscriber', 'to_user'), name='follower_subscriber_to_user_unique'),
+        )
