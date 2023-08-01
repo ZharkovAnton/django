@@ -26,7 +26,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             'count_comments',
             'total_likes',
             'count_followers',
-            'followers'
+            'followers',
         )
 
 

@@ -57,8 +57,7 @@ class ProfileDetailView(GenericAPIView):
             .values('following')
             .annotate(count_followers=Count('email'))
             .values('count_followers')
-            )
-
+        )
 
         print(self.request.user.id)
 
