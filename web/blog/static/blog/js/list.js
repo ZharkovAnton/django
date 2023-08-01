@@ -9,7 +9,7 @@ $(function () {
 
 });
 
-// TODO: переписать код
+// TODO: переписать код и убрать лайки
 
 function getArticleList(params='?page=1') {
   let url = '/api/v1/article/' + params

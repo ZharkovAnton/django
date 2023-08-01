@@ -22,7 +22,6 @@ class ArticleDetail {
     const aTags = spanNavbar.querySelectorAll('a')
     const lastElement = aTags[aTags.length - 1];
     const userId = parseInt(lastElement.getAttribute('data-userId'));
-    // [x]: added likes to detaile page
     return `
       <!-- the actual blog post: title/author/date/content -->
       <h1><a href="">${article.title}</a></h1>
@@ -85,7 +84,6 @@ class ArticleDetail {
 class CommentList{
   generateСhildHTML(child) {
     const userId = get_userId()
-    // [x]: подключить комменты
     return `
       <h4><i class="fa fa-comment"></i> ${child.user} says:
       <small> ${child.updated}</small>
@@ -310,7 +308,6 @@ function likeDislike (event, element) {
     data: jsonData,
     success: function (data) {
       if (model === 'Article') {
-        // [x]: количество лайков для статьи
         const svgA = divRow.querySelector(`#${searchId}`).querySelector('svg')
         const spanNumLike = divRow.querySelector(`#article_${objectId}`)
         spanNumLike.textContent = data.sum_likes > 0 ? data.sum_likes : 0
@@ -325,7 +322,6 @@ function likeDislike (event, element) {
           svgElement.setAttribute('fill', 'black');
         }
       } else if (model === 'Comment') {
-        // [x]: количество лайков для комментов
         const spanNumLike = divRow.querySelector(`#comment_${objectId}`)
         spanNumLike.textContent = data.sum_likes
         if (svgElement.getAttribute('fill') === 'red'){

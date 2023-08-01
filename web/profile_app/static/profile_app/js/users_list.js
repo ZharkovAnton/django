@@ -13,7 +13,6 @@ function getUserList() {
     success: function (data) {
       const filteredUsers = data.filter(user => user.id !== parseInt(userId));
       const usersHTML = filteredUsers.map(user => {
-        console.log(user.id===userId)
         user.date_joined = formatDate(user.date_joined)
         return generateUserListHTML(user);
       }).join('')

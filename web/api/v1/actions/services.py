@@ -11,15 +11,14 @@ from blog.models import Article, Comment
 from main.models import UserType
 
 
-# TODO: !!! как избавиться от запроса в БД ContentType и проверить типизацию
 class LikeDislikeService:
-    def __init__(self, data: dict, user: UserType, *args, **kwargs) -> None:
+    def __init__(self, data: dict, user: UserType) -> None:
         self.model_name: str = data['model']
         self.vote_type: str = data['vote_type']
         self.object_id: str = data['object_id']
         self.user = user
 
-    def get_instance(self) -> Union[Article, Comment]:
+    def get_instance(self) -> Article | Comment:
         return apps.get_model(app_label='blog', model_name=self.model_name).objects.get(pk=self.object_id)
 
     def get_model(self) -> Union[Article, Comment]:
