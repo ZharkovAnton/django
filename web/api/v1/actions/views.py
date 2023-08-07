@@ -8,8 +8,9 @@ from rest_framework.response import Response
 
 from .filters import FollowFilter
 from .serializers import FollowersSerializer, FollowersUpdateDeleteSerializer, LikeDislikeUpdateSerializer
-from .services import LikeDislikeService
+from .services import LikeDislikeService, FollowerQueryService
 from main.pagination import BasePageNumberPagination
+from rest_framework.mixins import ListModelMixin
 
 User = get_user_model()
 
@@ -54,31 +55,35 @@ class FollowerUpdateDeleteView(GenericAPIView):
         )
 
 
-class FollowerViewSet(viewsets.GenericViewSet):
+class FollowerViewSet(ListModelMixin, viewsets.GenericViewSet):
     serializer_class = FollowersSerializer
     filter_backends = (DjangoFilterBackend,)
+    #TODO: сортировка по имени без регистра
     filterset_class = FollowFilter
     pagination_class = BasePageNumberPagination
 
     def get_queryset(self):
-        user_id = self.kwargs['user_id']
-        user = User.objects.get(id=user_id)
+        service = FollowerQueryService()
 
-        if self.action == 'following':
-            return user.following.all()
-        elif self.action == 'followers':
-            return user.followers.all()
+        if self.action == 'following_by_id':
+            user = service.get_user(self.kwargs['user_id'])
+            return service.get_following(user)
+        elif self.action == 'followers_by_id':
+            user = service.get_user(self.kwargs['user_id'])
+            return service.get_followers(user)
+        elif self.action == 'following_current_user':
+            return service.get_following(self.request.user)
+        elif self.action == 'followers_current_user':
+            return service.get_followers(self.request.user)
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        paginator = self.pagination_class()
-        filtered_queryset = self.filterset_class(self.request.GET, queryset=queryset).qs
-        paginated_queryset = paginator.paginate_queryset(filtered_queryset, request)
-        serializer = self.get_serializer(paginated_queryset, many=True)
-        return paginator.get_paginated_response(serializer.data)
-
-    def following(self, request, *args, **kwargs):
+    def following_by_id(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
-    def followers(self, request, *args, **kwargs):
+    def followers_by_id(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def following_current_user(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def followers_current_user(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)

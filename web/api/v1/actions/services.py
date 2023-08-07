@@ -2,13 +2,19 @@ from typing import Union
 
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Sum
+from django.db.models import Sum, QuerySet
 from django.db.models.functions import Coalesce
+from django.contrib.auth import get_user_model
+from rest_framework.exceptions import NotFound
+from django.utils.translation import gettext_lazy as _
 
 from actions.models import LikeDislike
 from blog.models import Article, Comment
 
 from main.models import UserType
+
+User = get_user_model()
+
 
 
 class LikeDislikeService:
@@ -42,3 +48,17 @@ class LikeDislikeService:
         return LikeDislike.objects.filter(
             content_type=ContentType.objects.get_for_model(self.get_instance()), object_id=self.get_instance().id
         ).aggregate(sum_likes=Coalesce(Sum('vote'), 0))['sum_likes']
+
+
+class FollowerQueryService:
+    def get_user(self, user_id: int) -> UserType:
+        try:
+            return User.objects.get(id=user_id)
+        except User.DoesNotExist as e:
+            raise NotFound(_('Requested user does not exist')) from e
+
+    def get_followers(self, user: UserType) -> QuerySet[UserType]:
+        return user.followers.all()
+
+    def get_following(self, user: UserType) -> QuerySet[UserType]:
+        return user.following.all()

@@ -27,7 +27,7 @@ class LikeDislikeFullSerializer(serializers.ModelSerializer):
 class FollowersSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'full_name', 'avatar', 'email')
+        fields = ('id', 'full_name', 'avatar', 'email', 'followers')
 
 
 class FollowersUpdateDeleteSerializer(serializers.Serializer):

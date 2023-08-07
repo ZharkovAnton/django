@@ -41,3 +41,11 @@ class Follower(models.Model):
         constraints = (
             models.UniqueConstraint(fields=('subscriber', 'to_user'), name='follower_subscriber_to_user_unique'),
         )
+
+class EventAction(models.Model):
+    class EventChoices(models.TextChoices):
+        UPDATE_AVATAR = ('update_avatar', 'Update avatar')
+
+    name = models.CharField(max_length=255, choices=EventChoices.choices)
+    user = models.ForeignKey(User, related_name='events', on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)

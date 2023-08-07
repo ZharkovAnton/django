@@ -61,10 +61,9 @@ class CategoryAdmin(admin.ModelAdmin):
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('author', 'format_content', 'total_likes')
 
-    # [x]: отдельный сервис?
+    # TODO: пернести в отдельный сервис
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        print(request.user.likes_dislikes.all().first().articles.all())
         subquery_total_likes = (
             LikeDislike.objects.filter(
                 content_type=ContentType.objects.get_for_model(Comment), object_id=OuterRef('id')

@@ -59,8 +59,6 @@ class ProfileDetailView(GenericAPIView):
             .values('count_followers')
         )
 
-        print(self.request.user.id)
-
         return User.objects.annotate(
             count_articles=Coalesce(Subquery(count_article_subquery), 0),
             count_comments=Coalesce(Subquery(count_comment_subquery), 0),

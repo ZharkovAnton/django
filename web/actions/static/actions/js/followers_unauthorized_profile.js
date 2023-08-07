@@ -9,7 +9,6 @@ function getFollowersForOtherUser() {
     url: `/api/v1/actions/followers/${userId}/`,
     type: "GET",
     success: function (data) {
-      console.log(data.results)
       $('.bootstrap').find('.list-group-dividered').empty();
       const followersHTML = data.results.map(user => {
         return generateFollowersHTML(user)
@@ -25,6 +24,9 @@ function getFollowersForOtherUser() {
 }
 
 function generateFollowersHTML(user) {
+  const aTags = document.querySelector('span.navbar-brand').querySelectorAll('a');
+  const lastElement = aTags[aTags.length - 1];
+  const authUser = parseInt(lastElement.getAttribute('data-userId'))
   return `
   <li class="list-group-item">
     <div class="media">
@@ -36,9 +38,9 @@ function generateFollowersHTML(user) {
       </div>
       <div class="media-body">
         <div class="pull-right">
-          <button type="button" class="btn btn-info btn-sm waves-effect waves-light">Follow</button>
+          ${user.id === authUser ? '' : (user.followers.includes(authUser) ? `<button type="button" id="follower-update-list" data-userid="${user.id}" class="btn btn-danger btn-sm waves-effect waves-light" onclick="getUpdateFollowersForOtherUser(event, this, buttonId='list_button')"><span class="type-following">Unsubscribe</span></button>`:`<button type="button" data-userid="${user.id}" class="btn btn-success btn-sm waves-effect waves-light" onclick="getUpdateFollowersForOtherUser(event, this, buttonId='list_button')"><span class="type-following">Subscribe</span></button>`)}
         </div>
-        <div><a class="name" href="#">${user.full_name}</a></div>
+        <div><a class="name" href="/profile/${user.id}">${user.full_name}</a></div>
         <small>${user.email}</small>
       </div>
     </div>
@@ -46,29 +48,44 @@ function generateFollowersHTML(user) {
   `
 }
 
-function getUpdateFollowersForOtherUser(event) {
+function getUpdateFollowersForOtherUser(event, element, buttonId) {
   event.preventDefault();
-  const url = new URL(window.location.href);
-  const pathnameArray = url.pathname.split('/');
-  const userId = pathnameArray[pathnameArray.length - 1];
+  console.log(element)
+  const userId = parseInt(element.getAttribute('data-userid'))
   $.ajax({
     url: `/api/v1/actions/followers/update/`,
     type: "POST",
     dataType: "json",
     data: {id: userId},
     success: function (data) {
-      const buttonSubscribers = document.querySelector('.bootstrap').querySelector('#follower-update')
-      const countSubscribers = document.querySelector('.bootstrap').querySelector('#follow-value')
-      countSubscribers.innerText = data.count_followers
+      if (buttonId === 'list_button') {
+        const buttonSubscribers = document.querySelector('.bootstrap').querySelector('#follower-update-list')
 
-      if(buttonSubscribers.classList.contains('btn-success')) {
-        buttonSubscribers.classList.remove('btn-success')
-        buttonSubscribers.classList.add('btn-danger')
-        buttonSubscribers.querySelector('span.type-following').innerText = 'Unsubscribe'
-      } else {
-        buttonSubscribers.classList.remove('btn-danger')
-        buttonSubscribers.classList.add('btn-success')
-        buttonSubscribers.querySelector('span.type-following').innerText = 'Subscribe'
+        if(buttonSubscribers.classList.contains('btn-success')) {
+          buttonSubscribers.classList.remove('btn-success')
+          buttonSubscribers.classList.add('btn-danger')
+          buttonSubscribers.querySelector('span.type-following').innerText = 'Unsubscribe'
+        } else {
+          buttonSubscribers.classList.remove('btn-danger')
+          buttonSubscribers.classList.add('btn-success')
+          buttonSubscribers.querySelector('span.type-following').innerText = 'Subscribe'
+      }
+
+      } else if (buttonId === 'profile_button') {
+        const buttonSubscribers = document.querySelector('.bootstrap').querySelector('#follower-update')
+        const countSubscribers = document.querySelector('.bootstrap').querySelector('#follow-value')
+        countSubscribers.innerText = data.count_followers
+
+        if(buttonSubscribers.classList.contains('btn-success')) {
+          buttonSubscribers.classList.remove('btn-success')
+          buttonSubscribers.classList.add('btn-danger')
+          buttonSubscribers.querySelector('span.type-following').innerText = 'Unsubscribe'
+        } else {
+          buttonSubscribers.classList.remove('btn-danger')
+          buttonSubscribers.classList.add('btn-success')
+          buttonSubscribers.querySelector('span.type-following').innerText = 'Subscribe'
+      }
+
       }
 
     },
@@ -77,4 +94,3 @@ function getUpdateFollowersForOtherUser(event) {
     }
   })
 }
-

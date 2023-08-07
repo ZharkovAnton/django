@@ -41,7 +41,7 @@ function generateProfileHTML(bioData) {
   <div class="action-buttons">
       <div class="row">
           <div class="col-xs-6">
-              <a href="#" id="follower-update" onclick="getUpdateFollowersForOtherUser(event, this)" class="${bioData.followers.includes(authUser) ? 'btn-danger' :'btn-success'} btn btn-block"> <span class="type-following">${bioData.followers.includes(authUser) ? 'Unsubscribe':'Subscribe'}</span> <span id="follow-value" class="badge bg-secondary">${bioData.count_followers}</span></a>
+              <a href="#" id="follower-update" data-userid="${bioData.id}" onclick="getUpdateFollowersForOtherUser(event, this, buttonId='profile_button')" class="${bioData.followers.includes(authUser) ? 'btn-danger' :'btn-success'} btn btn-block"> <span class="type-following">${bioData.followers.includes(authUser) ? 'Unsubscribe':'Subscribe'}</span> <span id="follow-value" class="badge bg-secondary">${bioData.count_followers}</span></a>
           </div>
           <div class="col-xs-6">
               <a href="#" onclick="getFollowersForOtherUser(event, this)" class="btn btn-primary btn-block" data-target="#modal-example" data-toggle="modal"><i class="fa fa-android-mail"></i> Followers</a>
