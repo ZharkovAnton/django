@@ -12,7 +12,7 @@ function onClick(e) {
           dataType: 'json',
           data: {token: token},
           success: function (data) {
-            if (data.detail === 'success') {
+            if (data.detail === 'success' || data.detail === 'успех') {
               resetPassword(e)
             }
           },

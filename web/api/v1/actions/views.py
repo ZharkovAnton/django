@@ -7,10 +7,11 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
 from .filters import FollowFilter
-from .serializers import FollowersSerializer, FollowersUpdateDeleteSerializer, LikeDislikeUpdateSerializer
+from .serializers import FollowersSerializer, FollowersUpdateDeleteSerializer, LikeDislikeUpdateSerializer, EventSerializer
 from .services import LikeDislikeService, FollowerQueryService
 from main.pagination import BasePageNumberPagination
 from rest_framework.mixins import ListModelMixin
+from actions.models import EventAction
 
 User = get_user_model()
 
@@ -87,3 +88,15 @@ class FollowerViewSet(ListModelMixin, viewsets.GenericViewSet):
 
     def followers_current_user(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
+
+class EventView(GenericAPIView):
+    serializer_class = EventSerializer
+    def get_queryset(self):
+        return EventAction.objects.all().order_by('-created')
+
+    def get(self, request):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+
+        return Response(serializer.data)
+

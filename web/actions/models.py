@@ -44,7 +44,8 @@ class Follower(models.Model):
 
 class EventAction(models.Model):
     class EventChoices(models.TextChoices):
-        UPDATE_AVATAR = ('update_avatar', 'Update avatar')
+        UPDATE_AVATAR = ('update_avatar', 'Updated avatar')
+        CREATE_ARTICLE = ('create_article', 'Created new article')
 
     name = models.CharField(max_length=255, choices=EventChoices.choices)
     user = models.ForeignKey(User, related_name='events', on_delete=models.CASCADE)

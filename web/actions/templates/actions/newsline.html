@@ -1,0 +1,12 @@
+{% extends 'actions/base.html' %}
+{% load static %}
+
+{% block container %}
+<div class="container bootstrap">
+
+</div>
+{% endblock container %}
+
+{% block jquery %}
+$.getScript('{% static 'actions/js/newsline.js' %}');
+{% endblock %}

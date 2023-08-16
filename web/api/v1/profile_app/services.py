@@ -10,9 +10,12 @@ User = get_user_model()
 
 class ProfileUpdateService:
     def update_user(self, user: User, data: dict) -> User:
+        updated_fields = []
         for attr, value in data.items():
-            setattr(user, attr, value)
-        user.save()
+            if getattr(user, attr) != value:
+                setattr(user, attr, value)
+                updated_fields.append(attr)
+        user.save(update_fields=updated_fields)
 
     def update_password(self, user: User, data: dict):
         user.set_password(data['password_1'])

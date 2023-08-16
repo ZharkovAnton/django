@@ -2,9 +2,14 @@ from django.contrib.auth import get_user_model
 from django.db.models import TextChoices
 from rest_framework import serializers
 
-from actions.models import Follower, LikeDislike
+from actions.models import EventAction, LikeDislike
 
 User = get_user_model()
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'email', 'full_name')
 
 
 class LikeDislikeModelChoice(TextChoices):
@@ -32,3 +37,11 @@ class FollowersSerializer(serializers.ModelSerializer):
 
 class FollowersUpdateDeleteSerializer(serializers.Serializer):
     id = serializers.IntegerField(min_value=1)
+
+class EventSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    name = serializers.CharField(source='get_name_display')
+
+    class Meta:
+        model = EventAction
+        fields = ('user', 'name', 'created')

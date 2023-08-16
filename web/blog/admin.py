@@ -6,6 +6,7 @@ from django.db.models import OuterRef, Subquery, Sum
 from django.db.models.functions import Coalesce
 from django.db.models.query import QuerySet
 from django.http.request import HttpRequest
+from django.utils.html import format_html
 from django_summernote.admin import SummernoteModelAdmin
 
 from actions.models import LikeDislike
@@ -82,3 +83,8 @@ class CommentAdmin(admin.ModelAdmin):
 
     def total_likes(self, obj):
         return obj.total_likes
+
+    @admin.display
+    def format_content(self):
+        return format_html(self.content[:50])
+

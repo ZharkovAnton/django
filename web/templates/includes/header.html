@@ -23,8 +23,11 @@
       <li {% if selected == 'contact_us' %}class="active"{% endif %}><a href="{% url 'contact_us:index' %}">
       <i class="fa fa-envelope"></i> Contact</a>
       </li>
-      <li {% if selected == 'about' %}class="active"{% endif %}>
-      <a href="{% url 'profile_app:profile-users' %}"></i> About</a>
+      <li {% if selected == 'users' %}class="active"{% endif %}><a href="{% url 'profile_app:profile-users' %}">
+      <i class="fa fa-users"></i> About</a>
+      </li>
+      <li {% if selected == 'newsline' %}class="active"{% endif %}><a href="{% url 'actions:newsline' %}">
+      <i class="fa fa-info-circle"></i> Newsline</a>
       </li>
 
       <form class="navbar-form navbar-right">

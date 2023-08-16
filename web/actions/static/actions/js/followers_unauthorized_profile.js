@@ -40,7 +40,7 @@ function generateFollowersHTML(user) {
         <div class="pull-right">
           ${user.id === authUser ? '' : (user.followers.includes(authUser) ? `<button type="button" id="follower-update-list" data-userid="${user.id}" class="btn btn-danger btn-sm waves-effect waves-light" onclick="getUpdateFollowersForOtherUser(event, this, buttonId='list_button')"><span class="type-following">Unsubscribe</span></button>`:`<button type="button" data-userid="${user.id}" class="btn btn-success btn-sm waves-effect waves-light" onclick="getUpdateFollowersForOtherUser(event, this, buttonId='list_button')"><span class="type-following">Subscribe</span></button>`)}
         </div>
-        <div><a class="name" href="/profile/${user.id}">${user.full_name}</a></div>
+        <div><a class="name" href="/profile/${user.id === authUser ? '':`${user.id}`}"> ${user.full_name}</a></div>
         <small>${user.email}</small>
       </div>
     </div>
@@ -50,7 +50,6 @@ function generateFollowersHTML(user) {
 
 function getUpdateFollowersForOtherUser(event, element, buttonId) {
   event.preventDefault();
-  console.log(element)
   const userId = parseInt(element.getAttribute('data-userid'))
   $.ajax({
     url: `/api/v1/actions/followers/update/`,
@@ -59,16 +58,14 @@ function getUpdateFollowersForOtherUser(event, element, buttonId) {
     data: {id: userId},
     success: function (data) {
       if (buttonId === 'list_button') {
-        const buttonSubscribers = document.querySelector('.bootstrap').querySelector('#follower-update-list')
-
-        if(buttonSubscribers.classList.contains('btn-success')) {
-          buttonSubscribers.classList.remove('btn-success')
-          buttonSubscribers.classList.add('btn-danger')
-          buttonSubscribers.querySelector('span.type-following').innerText = 'Unsubscribe'
+        if(element.classList.contains('btn-success')) {
+          element.classList.remove('btn-success')
+          element.classList.add('btn-danger')
+          element.querySelector('span.type-following').innerText = 'Unsubscribe'
         } else {
-          buttonSubscribers.classList.remove('btn-danger')
-          buttonSubscribers.classList.add('btn-success')
-          buttonSubscribers.querySelector('span.type-following').innerText = 'Subscribe'
+          element.classList.remove('btn-danger')
+          element.classList.add('btn-success')
+          element.querySelector('span.type-following').innerText = 'Subscribe'
       }
 
       } else if (buttonId === 'profile_button') {
