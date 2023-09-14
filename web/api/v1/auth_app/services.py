@@ -1,4 +1,5 @@
 import urllib
+import jwt
 from typing import TYPE_CHECKING, NamedTuple, Optional
 from urllib.parse import urlencode, urljoin
 
@@ -14,7 +15,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.utils import json
 from rest_framework_simplejwt.exceptions import TokenError
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import AccessToken
 
 from api.email_services import BaseEmailHandler
 
@@ -204,3 +205,25 @@ class CaptchaHandler:
             return True
 
         return False
+
+class MicroAuthHandler:
+    def __init__(self, data: dict):
+        self.token = data['token']
+
+    def verify_jwt_token(self) -> int:
+        access_token = AccessToken(self.token)
+        return access_token.payload['user_id']
+
+    def get_user(self) -> User | None:
+        user_id = self.verify_jwt_token()
+        try:
+            return User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            raise User.DoesNotExist('User does not exist')
+
+class CheckChatUserHandler:
+    def check_chat_user(self, id: int) -> int | None:
+        try:
+            return User.objects.get(id=id)
+        except User.DoesNotExist:
+            return None

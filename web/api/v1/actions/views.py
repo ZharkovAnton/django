@@ -4,14 +4,20 @@ from django.utils.translation import gettext_lazy as _
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.generics import GenericAPIView
+from rest_framework.mixins import ListModelMixin
 from rest_framework.response import Response
 
-from .filters import FollowFilter
-from .serializers import FollowersSerializer, FollowersUpdateDeleteSerializer, LikeDislikeUpdateSerializer, EventSerializer
-from .services import LikeDislikeService, FollowerQueryService
-from main.pagination import BasePageNumberPagination
-from rest_framework.mixins import ListModelMixin
 from actions.models import EventAction
+
+from .filters import FollowFilter
+from .serializers import (
+    EventSerializer,
+    FollowersSerializer,
+    FollowersUpdateDeleteSerializer,
+    LikeDislikeUpdateSerializer,
+)
+from .services import FollowerQueryService, LikeDislikeService
+from main.pagination import BasePageNumberPagination
 
 User = get_user_model()
 
@@ -59,7 +65,6 @@ class FollowerUpdateDeleteView(GenericAPIView):
 class FollowerViewSet(ListModelMixin, viewsets.GenericViewSet):
     serializer_class = FollowersSerializer
     filter_backends = (DjangoFilterBackend,)
-    #TODO: сортировка по имени без регистра
     filterset_class = FollowFilter
     pagination_class = BasePageNumberPagination
 
@@ -89,8 +94,10 @@ class FollowerViewSet(ListModelMixin, viewsets.GenericViewSet):
     def followers_current_user(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
+
 class EventView(GenericAPIView):
     serializer_class = EventSerializer
+
     def get_queryset(self):
         return EventAction.objects.all().order_by('-created')
 
@@ -99,4 +106,3 @@ class EventView(GenericAPIView):
         serializer = self.get_serializer(queryset, many=True)
 
         return Response(serializer.data)
-

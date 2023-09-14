@@ -1,12 +1,12 @@
 from typing import Union
 
 from django.apps import apps
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import Sum, QuerySet
-from django.db.models.functions import Coalesce
 from django.contrib.auth import get_user_model
-from rest_framework.exceptions import NotFound
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import QuerySet, Sum
+from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
+from rest_framework.exceptions import NotFound
 
 from actions.models import LikeDislike
 from blog.models import Article, Comment
@@ -14,7 +14,6 @@ from blog.models import Article, Comment
 from main.models import UserType
 
 User = get_user_model()
-
 
 
 class LikeDislikeService:

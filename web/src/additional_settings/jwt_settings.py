@@ -9,6 +9,7 @@ REST_AUTH = {
     'JWT_AUTH_COOKIE': 'jwt-auth',
     'USE_JWT': True,
     'SESSION_LOGIN': False,
+    # 'JWT_AUTH_SAMESITE': 'Strict',
 }
 
 SIMPLE_JWT = {

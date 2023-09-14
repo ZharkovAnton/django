@@ -6,6 +6,7 @@ from actions.models import EventAction, LikeDislike
 
 User = get_user_model()
 
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -37,6 +38,7 @@ class FollowersSerializer(serializers.ModelSerializer):
 
 class FollowersUpdateDeleteSerializer(serializers.Serializer):
     id = serializers.IntegerField(min_value=1)
+
 
 class EventSerializer(serializers.ModelSerializer):
     user = UserSerializer()

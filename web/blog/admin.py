@@ -1,17 +1,13 @@
 from typing import Any
 
 from django.contrib import admin
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import OuterRef, Subquery, Sum
+from django.db.models import Subquery
 from django.db.models.functions import Coalesce
-from django.db.models.query import QuerySet
-from django.http.request import HttpRequest
 from django.utils.html import format_html
 from django_summernote.admin import SummernoteModelAdmin
 
-from actions.models import LikeDislike
-
 from .models import Article, Category, Comment
+from .services import AdminQueryService
 
 
 class CommentInline(admin.TabularInline):
@@ -31,22 +27,18 @@ class ArticleAdmin(SummernoteModelAdmin):
         CommentInline,
     ]
 
+    # [x]: ?
     def get_queryset(self, request):
+        service = AdminQueryService()
+
         queryset = super().get_queryset(request)
-        subquery_total_likes = (
-            LikeDislike.objects.filter(
-                content_type=ContentType.objects.get_for_model(Article), object_id=OuterRef('id')
-            )
-            .values('object_id')
-            .annotate(total_likes=Sum('vote'))
-            .values('total_likes')
-        )
         queryset = queryset.annotate(
             total_likes=Coalesce(
-                Subquery(subquery_total_likes),
+                Subquery(service.get_total_likes_for_article()),
                 0,
             )
         )
+
         return queryset
 
     def total_likes(self, obj):
@@ -62,29 +54,23 @@ class CategoryAdmin(admin.ModelAdmin):
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('author', 'format_content', 'total_likes')
 
-    # TODO: пернести в отдельный сервис
+    # [x]: ?
     def get_queryset(self, request):
+        service = AdminQueryService()
+
         queryset = super().get_queryset(request)
-        subquery_total_likes = (
-            LikeDislike.objects.filter(
-                content_type=ContentType.objects.get_for_model(Comment), object_id=OuterRef('id')
-            )
-            .values('object_id')
-            .annotate(total_likes=Sum('vote'))
-            .values('total_likes')
-        )
         queryset = queryset.annotate(
             total_likes=Coalesce(
-                Subquery(subquery_total_likes),
+                Subquery(service.get_total_likes_for_comment()),
                 0,
             )
         )
+
         return queryset
 
     def total_likes(self, obj):
         return obj.total_likes
 
     @admin.display
-    def format_content(self):
-        return format_html(self.content[:50])
-
+    def format_content(self, obj):
+        return format_html(obj.content[:50])

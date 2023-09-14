@@ -31,6 +31,8 @@ GITHUB_URL = os.environ.get('GITHUB_URL', 'https://github.com')
 
 REDIS_URL = os.environ.get('REDIS_URL', 'redis://redis:6379')
 
+CHAT_URL = os.environ.get('CHAT_URL', 'http://localhost:8001')
+
 USE_HTTPS = int(os.environ.get('USE_HTTPS', 0))
 ENABLE_SENTRY = int(os.environ.get('ENABLE_SENTRY', 0))
 ENABLE_SILK = int(os.environ.get('ENABLE_SILK', 0))

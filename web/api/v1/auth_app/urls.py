@@ -15,4 +15,6 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view()),
     path('token/verify/', TokenVerifyView.as_view()),
     path('captcha/', views.CaptchaView.as_view(), name='captcha'),
+    path('microauth/', views.MicroAuthView.as_view(), name='microservice-authentication'),
+    path('checkid/', views.CheckChatUserView.as_view(), name='checkid'),
 ]

@@ -87,5 +87,18 @@ class VerifyEmailSerializer(serializers.Serializer):
     key = serializers.CharField()
 
 
+class ChatUserSerializer(serializers.Serializer):
+    chat_user_id = serializers.IntegerField()
+
+class UserSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField()
+    class Meta:
+        model = User
+        fields = ('id', 'full_name', 'avatar')
+
+# TODO: ??? можно объединить эти два сериалайзера в один TokenSerializer?
 class CaptchaSerializer(serializers.Serializer):
+    token = serializers.CharField()
+
+class MicroAuthSerializer(serializers.Serializer):
     token = serializers.CharField()

@@ -1,12 +1,36 @@
 $(function () {
 });
 
-function getFollowersForOtherUser() {
+function getFollowingForOtherUser(event, obj, query='') {
   const url = new URL(window.location.href);
   const pathnameArray = url.pathname.split('/');
   const userId = pathnameArray[pathnameArray.length - 1];
   $.ajax({
-    url: `/api/v1/actions/followers/${userId}/`,
+    url: `/api/v1/actions/following/${userId}/${query}`,
+    type: "GET",
+    success: function (data) {
+      $('.bootstrap').find('.list-group-dividered').empty();
+      const followersHTML = data.results.map(user => {
+        return generateFollowersHTML(user)
+      }).join('');
+      const ulListGroup = document.querySelector('.bootstrap').querySelector('.list-group-dividered')
+      ulListGroup.insertAdjacentHTML('afterbegin', followersHTML)
+
+    },
+    error: function (data) {
+      console.log('error', data)
+    }
+  })
+}
+
+function getFollowersForOtherUser(event, obj, query='') {
+  console.log(query)
+  const url = new URL(window.location.href);
+  const pathnameArray = url.pathname.split('/');
+  const userId = pathnameArray[pathnameArray.length - 1];
+  console.log(`/api/v1/actions/followers/${userId}/${query}`)
+  $.ajax({
+    url: `/api/v1/actions/followers/${userId}/${query}`,
     type: "GET",
     success: function (data) {
       $('.bootstrap').find('.list-group-dividered').empty();
@@ -90,4 +114,11 @@ function getUpdateFollowersForOtherUser(event, element, buttonId) {
       console.log('error', data)
     }
   })
+}
+
+function searchParams(event, obj) {
+  const inputSearchValue = document.querySelector('.bootstrap').querySelector('#search').value
+  const searchParams = '?search=' + inputSearchValue
+  console.log(searchParams)
+  getFollowersForOtherUser(undefined, undefined, searchParams)
 }

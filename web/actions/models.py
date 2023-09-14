@@ -42,6 +42,7 @@ class Follower(models.Model):
             models.UniqueConstraint(fields=('subscriber', 'to_user'), name='follower_subscriber_to_user_unique'),
         )
 
+
 class EventAction(models.Model):
     class EventChoices(models.TextChoices):
         UPDATE_AVATAR = ('update_avatar', 'Updated avatar')

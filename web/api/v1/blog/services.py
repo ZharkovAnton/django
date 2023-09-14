@@ -26,15 +26,7 @@ class BlogService:
 
 
 class CreateArticleService:
-    # TODO: исправить
-    def get_category(self, category_name: str):
-        return Category.objects.get(
-            name=category_name
-        )  # в valid_data находится объект Category, почему срабатывает поиск name= Category object
-
     def create_article(self, data: dict, user: UserType):
-        category = self.get_category(data['category'])  # я так понимаю это уже можно удалить
-
         image = data.get('image', '')
 
         return Article.objects.create(

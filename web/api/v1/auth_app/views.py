@@ -18,6 +18,8 @@ from .services import (
     ConfirmationEmailHandler,
     PasswordResetHandler,
     ResetPasswordEmail,
+    MicroAuthHandler,
+    CheckChatUserHandler,
     full_logout,
 )
 
@@ -152,3 +154,33 @@ class CaptchaView(GenericAPIView):
             {'detail': _('bad')},
             status=status.HTTP_400_BAD_REQUEST,
         )
+
+class MicroAuthView(GenericAPIView):
+    serializer_class = serializers.MicroAuthSerializer
+    permission_classes = (AllowAny,)
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        service = MicroAuthHandler(serializer.validated_data)
+        user = service.get_user()
+
+        user_serializer = serializers.UserSerializer(user)
+
+        return Response(user_serializer.data)
+
+class CheckChatUserView(GenericAPIView):
+    serializer_class = serializers.ChatUserSerializer
+    permission_classes = ()
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        service = CheckChatUserHandler()
+        chat_user = service.check_chat_user(serializer.validated_data['chat_user_id'])
+
+        chat_user_serializer = serializers.UserSerializer(chat_user)
+
+        return Response(chat_user_serializer.data)

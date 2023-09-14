@@ -41,10 +41,20 @@ function generateProfileHTML(bioData) {
   <div class="action-buttons">
       <div class="row">
           <div class="col-xs-6">
-              <a href="#" id="follower-update" data-userid="${bioData.id}" onclick="getUpdateFollowersForOtherUser(event, this, buttonId='profile_button')" class="${bioData.followers.includes(authUser) ? 'btn-danger' :'btn-success'} btn btn-block"> <span class="type-following">${bioData.followers.includes(authUser) ? 'Unsubscribe':'Subscribe'}</span> <span id="follow-value" class="badge bg-secondary">${bioData.count_followers}</span></a>
+              <a href="#" onclick="getFollowingForOtherUser(event, this)" class="btn btn-primary btn-block" data-target="#modal-example" data-toggle="modal"><i class="fa fa-android-mail"></i> Following</a>
           </div>
           <div class="col-xs-6">
               <a href="#" onclick="getFollowersForOtherUser(event, this)" class="btn btn-primary btn-block" data-target="#modal-example" data-toggle="modal"><i class="fa fa-android-mail"></i> Followers</a>
+          </div>
+          <hr/>
+
+          <div class="col-xs-12">
+              <a href="#" id="follower-update" data-userid="${bioData.id}" onclick="getUpdateFollowersForOtherUser(event, this, buttonId='profile_button')" class="${bioData.followers.includes(authUser) ? 'btn-danger' :'btn-success'} btn btn-block"> <span class="type-following">${bioData.followers.includes(authUser) ? 'Unsubscribe':'Subscribe'}</span> <span id="follow-value" class="badge bg-secondary">${bioData.count_followers}</span></a>
+          </div>
+          <hr/>
+          <hr/>
+          <div class="col-xs-12">
+              <a href="http://localhost:8001/init/?id=${bioData.id}" class="btn btn-info btn-block"><i class="glyphicon glyphicon-comment"></i> Chat</a>
           </div>
 
 
@@ -66,7 +76,7 @@ function generateProfileHTML(bioData) {
                             <div class="input-group">
                               <input id="search" type="text" class="form-control">
                               <span class="input-group-btn">
-                                <button id="search-btn" class="btn btn-default" type="button">
+                                <button id="search-btn" class="btn btn-default" type="button" onclick="searchParams(event, this)">
                                     <i class="fa fa-search"></i>
                                 </button>
                               </span>
@@ -168,6 +178,6 @@ function generateProfileHTML(bioData) {
         </form>
 
             <hr>
-      </div><!--/col-9--
+      </div><!--/col-9-->
   `
 }
