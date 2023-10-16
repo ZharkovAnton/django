@@ -50,6 +50,7 @@ class SignUpView(GenericAPIView):
 
 
 class LoginView(auth_views.LoginView):
+    # TODO: убрать класс auth_views.LoginView и переписать
     serializer_class = serializers.LoginSerializer
 
 
@@ -157,6 +158,7 @@ class CaptchaView(GenericAPIView):
 
 class MicroAuthView(GenericAPIView):
     serializer_class = serializers.MicroAuthSerializer
+    # TODO: ??? здесь как я понимаю не нужно ставить доступ для авторизованныз пользователей
     permission_classes = (AllowAny,)
 
     def post(self, request):
@@ -172,6 +174,7 @@ class MicroAuthView(GenericAPIView):
 
 class CheckChatUserView(GenericAPIView):
     serializer_class = serializers.ChatUserSerializer
+    # TODO: ??? тот же вопрос про авторизацию
     permission_classes = ()
 
     def post(self, request):

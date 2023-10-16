@@ -120,5 +120,5 @@ function searchParams(event, obj) {
   const inputSearchValue = document.querySelector('.bootstrap').querySelector('#search').value
   const searchParams = '?search=' + inputSearchValue
   console.log(searchParams)
-  getFollowersForOtherUser(undefined, undefined, searchParams)
+  getFollowingForOtherUser(undefined, undefined, searchParams)
 }

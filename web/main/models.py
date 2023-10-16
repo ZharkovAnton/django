@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core import signing
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.conf import settings
 
 from .choices import UserGender
 from .managers import UserManager
@@ -45,3 +46,6 @@ class User(AbstractUser):
     @property
     def confirmation_key(self) -> str:
         return signing.dumps(obj=self.pk)
+
+    def get_absolute_url_for_avatar(self) -> str:
+        return f'{settings.FRONTEND_URL}{self.avatar.url}'

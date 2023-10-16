@@ -92,9 +92,14 @@ class ChatUserSerializer(serializers.Serializer):
 
 class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField()
+    avatar = serializers.SerializerMethodField()
+
+    def get_avatar(self, obj):
+        return obj.get_absolute_url_for_avatar()
     class Meta:
         model = User
         fields = ('id', 'full_name', 'avatar')
+
 
 # TODO: ??? можно объединить эти два сериалайзера в один TokenSerializer?
 class CaptchaSerializer(serializers.Serializer):

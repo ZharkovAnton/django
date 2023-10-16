@@ -9,8 +9,9 @@ User = get_user_model()
 
 
 @receiver(post_save, sender=User)
-def update_avatar(sender, instance, **kwargs):
-    if 'avatar' in kwargs['update_fields']:
+def update_avatar(sender, instance, update_fields, **kwargs):
+    # TODO: посмотреть в чем проблема если убрать if update_fields
+    if update_fields and 'avatar' in update_fields:
         service = EventService()
         service.update_avatar(instance)
 
