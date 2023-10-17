@@ -87,9 +87,6 @@ class VerifyEmailSerializer(serializers.Serializer):
     key = serializers.CharField()
 
 
-class ChatUserSerializer(serializers.Serializer):
-    chat_user_id = serializers.IntegerField()
-
 class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField()
     avatar = serializers.SerializerMethodField()
