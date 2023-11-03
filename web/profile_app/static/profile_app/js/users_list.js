@@ -14,6 +14,12 @@ function getUserList() {
       const filteredUsers = data.filter(user => user.id !== parseInt(userId));
       const usersHTML = filteredUsers.map(user => {
         user.date_joined = formatDate(user.date_joined)
+
+        const urlParts = user.avatar.split('/');
+        const lastElement = urlParts[urlParts.length - 1];
+        if (lastElement === 'no-image-available.jpg') {
+          user.avatar = 'http://localhost:8000/media/no_ava/no_ava.png';
+        }
         return generateUserListHTML(user);
       }).join('')
 
