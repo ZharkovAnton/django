@@ -1,13 +1,14 @@
 from django.contrib.auth import get_user_model
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
-from django.db import models
 
 User = get_user_model()
 
 
 class UserChatListSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = ('id', 'avatar', 'full_name')
@@ -17,7 +18,4 @@ class UserChatListSerializer(serializers.ModelSerializer):
 
 
 class UserChatIdsListSerializer(serializers.Serializer):
-    user_ids = serializers.ListField(
-        child=serializers.IntegerField()
-        )
-
+    user_ids = serializers.ListField(child=serializers.IntegerField())

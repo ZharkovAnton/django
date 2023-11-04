@@ -1,10 +1,10 @@
 from typing import TypeVar
 
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core import signing
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.conf import settings
 
 from .choices import UserGender
 from .managers import UserManager

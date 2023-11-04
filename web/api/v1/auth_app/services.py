@@ -1,8 +1,8 @@
 import urllib
-import jwt
 from typing import TYPE_CHECKING, NamedTuple, Optional
 from urllib.parse import urlencode, urljoin
 
+import jwt
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
@@ -206,6 +206,7 @@ class CaptchaHandler:
 
         return False
 
+
 class MicroAuthHandler:
     def __init__(self, data: dict):
         self.token = data['token']
@@ -220,6 +221,7 @@ class MicroAuthHandler:
             return User.objects.get(id=user_id)
         except User.DoesNotExist:
             raise User.DoesNotExist('User does not exist')
+
 
 class CheckChatUserHandler:
     def check_chat_user(self, id: int) -> int | None:

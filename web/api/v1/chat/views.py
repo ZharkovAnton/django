@@ -7,11 +7,11 @@ from rest_framework.response import Response
 
 from . import serializers
 
-
 User: 'UserType' = get_user_model()
 
 if TYPE_CHECKING:
     from main.models import UserType
+
 
 class UserChatListView(GenericAPIView):
     serializer_class = serializers.UserChatIdsListSerializer

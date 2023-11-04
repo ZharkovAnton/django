@@ -93,6 +93,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_avatar(self, obj):
         return obj.get_absolute_url_for_avatar()
+
     class Meta:
         model = User
         fields = ('id', 'full_name', 'avatar')
@@ -101,6 +102,7 @@ class UserSerializer(serializers.ModelSerializer):
 # TODO: ??? можно объединить эти два сериалайзера в один TokenSerializer?
 class CaptchaSerializer(serializers.Serializer):
     token = serializers.CharField()
+
 
 class MicroAuthSerializer(serializers.Serializer):
     token = serializers.CharField()

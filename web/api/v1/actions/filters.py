@@ -5,9 +5,7 @@ from django_filters import rest_framework as filters
 class FollowFilter(filters.FilterSet):
     search = filters.CharFilter(method='search_filter')
     first_name = filters.OrderingFilter(
-        fields=(
-            ('first_name', 'first_name'),
-        ),
+        fields=(('first_name', 'first_name'),),
     )
 
     def search_filter(self, queryset, name, value):

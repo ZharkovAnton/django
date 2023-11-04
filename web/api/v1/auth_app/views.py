@@ -16,9 +16,9 @@ from .services import (
     AuthAppService,
     CaptchaHandler,
     ConfirmationEmailHandler,
+    MicroAuthHandler,
     PasswordResetHandler,
     ResetPasswordEmail,
-    MicroAuthHandler,
     full_logout,
 )
 
@@ -154,6 +154,7 @@ class CaptchaView(GenericAPIView):
             {'detail': _('bad')},
             status=status.HTTP_400_BAD_REQUEST,
         )
+
 
 class MicroAuthView(GenericAPIView):
     serializer_class = serializers.MicroAuthSerializer
