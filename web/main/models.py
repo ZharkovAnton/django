@@ -18,7 +18,7 @@ class User(AbstractUser):
     email = models.EmailField(_('Email address'), unique=True)
     birthday = models.DateField(_('Birthday'), null=True, blank=True)
     gender = models.PositiveSmallIntegerField(_('Gender'), choices=UserGender.choices, default=UserGender.UNKNOWN)
-    avatar = models.ImageField(upload_to=user_directory_path, blank=True, default='no-image-available.jpg')
+    avatar = models.ImageField(upload_to=user_directory_path, blank=True, default='no_ava.png')
     following = models.ManyToManyField(
         'self',
         blank=True,

@@ -37,7 +37,34 @@ def user() -> User:
         email='q@gmail.com',
         password='12345678',
         is_active=True,
+        first_name='Anton',
+        last_name='Zharkov',
     )
+
+
+@pytest.fixture
+def second_user() -> User:
+    return User.objects.create_user(
+        email='second@gmail.com',
+        password='12345678',
+        is_active=True,
+        first_name='User2',
+        last_name='Second',
+    )
+
+
+@pytest.fixture
+def user_with_following_followers(second_user: User, user: User) -> User:
+    user.following.add(second_user)
+    second_user.following.add(user)
+    return user
+
+
+@pytest.fixture
+def second_user_with_following_followers(second_user: User, user: User) -> User:
+    second_user.following.add(user)
+    user.following.add(second_user)
+    return second_user
 
 
 @pytest.fixture

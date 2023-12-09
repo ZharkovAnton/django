@@ -27,3 +27,4 @@ modules.txt
 
 db.sqlite3
 .DS_Store
+.secret.env

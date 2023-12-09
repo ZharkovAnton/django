@@ -22,5 +22,7 @@ class ProfileUpdateService:
         user.save(update_fields=['password'])
 
     def update_avatar(self, user: User, avatar: InMemoryUploadedFile):
+        if user.avatar:
+            user.avatar.delete()
         user.avatar = avatar
         user.save(update_fields=['avatar'])

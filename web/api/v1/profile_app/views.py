@@ -7,11 +7,10 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.parsers import FormParser, MultiPartParser
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from actions.models import LikeDislike
-from api.permissions import IsOwnerOrReadOnly
 from api.v1.profile_app.serializers import (
     ProfileSerializer,
     ProfileUpdateAvatarSerializer,
@@ -21,6 +20,8 @@ from api.v1.profile_app.serializers import (
 )
 from api.v1.profile_app.services import ProfileUpdateService
 from blog.models import Article, Comment
+from src.celery import app
+from celery.result import AsyncResult
 
 if TYPE_CHECKING:
     from main.models import UserType
@@ -78,9 +79,9 @@ class ProfileDetailView(GenericAPIView):
 
 class ProfileUpdateBIOView(GenericAPIView):
     serializer_class = ProfileUpdateBIOSerializer
-    permission_classes = (IsOwnerOrReadOnly,)
+    permission_classes = (IsAuthenticated,)
 
-    def put(self, request):
+    def post(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -95,7 +96,7 @@ class ProfileUpdateBIOView(GenericAPIView):
 
 class ProfileUpdatePasswordView(GenericAPIView):
     serializer_class = ProfileUpdatePasswordSerializer
-    permission_classes = (IsOwnerOrReadOnly,)
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -112,7 +113,7 @@ class ProfileUpdatePasswordView(GenericAPIView):
 
 class ProfileUpdateAvatarView(GenericAPIView):
     serializer_class = ProfileUpdateAvatarSerializer
-    permission_classes = (IsOwnerOrReadOnly,)
+    permission_classes = (IsAuthenticated,)
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request, *args, **kwargs):
@@ -136,6 +137,9 @@ class UsersListView(GenericAPIView):
         return User.objects.all().order_by(F('is_active').desc(), F('date_joined').asc())
 
     def get(self, request, *args, **kwargs):
+        res: AsyncResult = app.send_task('tasks.add', args=[1,2], queue='project_1')
+        while res.ready() is False:
+            print(res.ready())
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
 

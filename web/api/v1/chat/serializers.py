@@ -7,14 +7,14 @@ User = get_user_model()
 
 
 class UserChatListSerializer(serializers.ModelSerializer):
-    avatar = serializers.SerializerMethodField()
+    # avatar = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = ('id', 'avatar', 'full_name')
 
-    def get_avatar(self, obj):
-        return obj.get_absolute_url_for_avatar()
+    # def get_avatar(self, obj):
+    #     return obj.get_absolute_url_for_avatar()
 
 
 class UserChatIdsListSerializer(serializers.Serializer):

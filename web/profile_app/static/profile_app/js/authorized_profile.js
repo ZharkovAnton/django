@@ -30,7 +30,7 @@ function updateBIOProfile(e) {
   const form = $(this)
   $.ajax({
     url: '/api/v1/profile/update/bio/',
-    type: "PUT",
+    type: "POST",
     dataType: "json",
     data: form.serialize(),
     success: function (data) {

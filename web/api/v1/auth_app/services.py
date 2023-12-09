@@ -15,7 +15,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.utils import json
 from rest_framework_simplejwt.exceptions import TokenError
-from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 
 from api.email_services import BaseEmailHandler
 
@@ -154,7 +154,8 @@ class PasswordResetHandler:
             return User.objects.get(email=email)
         except (
             User.DoesNotExist
-        ):  # нельзя возвращать ответ что такого email нет, так как могут начать подбирать email, нужно всегда писать что письмо отправлено
+        ):  # нельзя возвращать ответ что такого email нет, так как могут начать подбирать email,
+            # нужно всегда писать что письмо отправлено
             return None
 
     def user_token_uid(self, email: str):

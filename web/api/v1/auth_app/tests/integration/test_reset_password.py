@@ -51,9 +51,3 @@ def test_reset_password(client, user):
     assert response.status_code == 200
     data = response.json()
     assert data['access']
-
-
-def test_client(api_client):
-    url = reverse('api:v1:blog:article-list')
-    response = api_client.get(url)
-    print(f'Code: {response.status_code}')
