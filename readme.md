@@ -24,7 +24,7 @@
 
 #### Clone the repo or click "Use this template" button:
 
-    git clone https://github.com/bandirom/django-blog.git
+    git clone https://github.com/ZharkovAnton/django.git
     
 
 #### Before running add your superuser email/password and project name in docker/prod/env/.data.env file

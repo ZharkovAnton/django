@@ -16,7 +16,7 @@ FROM python:3.11-alpine3.15
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    TZ=Europe/Kiev \
+    TZ=Europe/Moscow \
     LANG=C.UTF-8 \
     APP_HOME=/web
 
